@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/* ── Knit design tokens ──────────────────────────────────────────────────
+   Matched to the Smart Suggestion screenshot: soft warm-neutral canvas, a
+   white content surface with generous rounding, muted ink, and the rainbow
+   brand accent used sparingly. Light, friendly, unhurried. */
+
+:root {
+  --canvas: #f4f1f4;
+  --surface: #ffffff;
+  --surface-muted: #f6f6f7;
+  --ink: #1c1c1e;
+  --ink-soft: #6b6b70;
+  --ink-faint: #9a9aa0;
+  --line: #ececef;
+  --accent: #7c3aed;
+  --radius-lg: 1.5rem;
+  --radius-md: 1rem;
+  --radius-sm: 0.75rem;
+  --font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-body);
+  --font-display-family: var(--font-display);
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.knit-mark {
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 210deg,
+    #3b82f6, #22c55e, #eab308, #f97316, #ef4444, #a855f7, #3b82f6
+  );
+  -webkit-mask: repeating-radial-gradient(
+    circle at center, transparent 0, transparent 1px, #000 1.5px, #000 2.5px
+  );
+  mask: repeating-radial-gradient(
+    circle at center, transparent 0, transparent 1px, #000 1.5px, #000 2.5px
+  );
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise { animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 1.4s infinite;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
