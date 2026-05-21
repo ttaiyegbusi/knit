@@ -33,7 +33,10 @@ export function ActivitiesNearYou() {
         <span className="text-sm text-ink-soft">{items.length} suggestions</span>
       </div>
 
-      <div className="grid grid-cols-4 gap-2.5">
+      {/* Only the first row is visible at rest: the grid is capped to one
+          row's height and clipped. The count reflects the full set; the rest
+          sit below the cut-off, hinted by the fade across the bottom. */}
+      <div className="grid max-h-36 grid-cols-4 gap-2.5 overflow-hidden">
         {items.map((s) => (
           <ActivityCard key={s.id} suggestion={s} />
         ))}
@@ -50,7 +53,7 @@ function ActivityCard({ suggestion: s }: { suggestion: Suggestion }) {
       : cat.label.replace(/^(Play a |Grab a |Do something )/, "");
   return (
     <article
-      className="relative h-36 overflow-hidden rounded-xl bg-cover bg-center"
+      className="relative h-36 overflow-hidden rounded-xl bg-cover bg-center ring-2 ring-transparent transition hover:ring-[#FF4275]"
       style={{ backgroundImage: `url(${s.imageUrl})` }}
     >
       {/* Minimal bottom scrim purely for text legibility */}

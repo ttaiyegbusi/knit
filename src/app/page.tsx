@@ -89,11 +89,12 @@ export default function Page() {
           )}
         </div>
 
-        {/* ── Activities Near You — pushed to the bottom; only the top of the
-             first row peeks above the fold, the fixed bottom fade washes over
-             it, and the rest is revealed as the user scrolls. ─────────────── */}
+        {/* ── Activities Near You — anchored at the very bottom; the single
+             row runs off the container's lower edge (clipped by the surface's
+             overflow-hidden) and the fixed fade washes across the cut-off
+             portion, signalling more on scroll. ─────────────────────────── */}
         {w.phase === "category" && (
-          <div className="mt-auto pt-12">
+          <div className="mt-auto -mb-7 sm:-mb-9">
             <ActivitiesNearYou />
           </div>
         )}
