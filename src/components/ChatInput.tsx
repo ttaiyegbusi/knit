@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, ArrowUp } from "lucide-react";
+import { Logo } from "./Logo";
 
 /**
  * Chat block — matched to chat.png:
@@ -31,7 +32,7 @@ export function ChatInput({
     <div className="rounded-2xl bg-surface-muted/60 p-1">
       {/* Header row */}
       <div className="mb-1.5 flex items-center gap-2 px-2 pt-1.5 text-sm font-semibold text-ink">
-        <span className="knit-mark h-4 w-4" />
+        <Logo size={16} />
         Start a New Chat
       </div>
 

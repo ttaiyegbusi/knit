@@ -1,19 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Pencil } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { StepCategory } from "@/components/StepCategory";
-import { StepRefinement } from "@/components/StepRefinement";
 import { StepLocation } from "@/components/StepLocation";
+import { Conversation } from "@/components/Conversation";
 import { Results } from "@/components/Results";
 import { ChatInput } from "@/components/ChatInput";
-import { ActivitiesNearYou } from "@/components/ActivitiesNearYou";
 import { EventSheet } from "@/components/EventSheet";
+import { Logo } from "@/components/Logo";
 import { useWizard } from "@/lib/useWizard";
 import { parseFreeText } from "@/lib/parser";
-import { getCategory } from "@/lib/categories";
-import { SURPRISE_ME, type Suggestion } from "@/lib/types";
+import { type Suggestion } from "@/lib/types";
 
 export default function Page() {
   const w = useWizard();
@@ -25,16 +23,22 @@ export default function Page() {
   }
 
   const showGreeting = w.phase === "category";
+  const inConversation =
+    w.phase === "category" ||
+    w.phase === "refinement" ||
+    w.phase === "location";
 
   return (
     <AppShell>
-      <div className="mx-auto flex min-h-full w-[600px] max-w-full flex-col pb-4">
-        {/* ── Top content group ─────────────────────────────────────────── */}
-        <div>
-          {/* Greeting — only on the first step, like the screenshot */}
+      <div className="flex h-full flex-col">
+        {/* ── Scrollable conversation area ──────────────────────────────── */}
+        <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {/* Greeting header */}
           {showGreeting && (
             <div className="mb-10 flex flex-col items-center text-center">
-              <div className="knit-mark mb-3 h-12 w-12" />
+              <div className="mb-3">
+                <Logo size={48} />
+              </div>
               <p className="text-sm text-ink-soft">Hi, there</p>
               <h1 className="font-display text-3xl text-ink">
                 What do you feel like doing?
@@ -42,58 +46,48 @@ export default function Page() {
             </div>
           )}
 
-          {/* Breadcrumb of answered steps (lets you go back and edit) */}
-          {!showGreeting && <AnswerTrail w={w} />}
-
-          {/* The active step */}
-          <div className="mb-8">
-            {w.phase === "category" && <StepCategory onPick={w.setCategory} />}
-
-            {w.phase === "refinement" && w.query.category && (
-              <StepRefinement
-                category={w.query.category}
-                onConfirm={w.setRefinement}
-                onSkip={w.skipRefinement}
-              />
-            )}
-
-            {w.phase === "location" && <StepLocation onConfirm={w.setLocation} />}
-
-            {w.phase === "results" && (
-              <>
-                {w.isLoading ? (
-                  <LoadingResults />
-                ) : (
-                  <Results
-                    suggestions={w.suggestions}
-                    onCreateEvent={setActiveEvent}
-                  />
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Chat shortcut — present on the first two steps as a fast path */}
-          {(w.phase === "category" || w.phase === "refinement") && (
-            <ChatInput onSubmit={handleChat} />
+          {/* The wizard, rendered as a chat transcript */}
+          {inConversation && (
+            <Conversation
+              w={w}
+              onPickCategory={w.setCategory}
+              onConfirmRefinement={w.setRefinement}
+              onSkipRefinement={w.skipRefinement}
+            />
           )}
 
-          {/* Restart */}
+          {/* Location step appears as the next Knit turn in the thread */}
+          {w.phase === "location" && (
+            <div className="mx-auto mt-6 w-[600px] max-w-full">
+              <StepLocation onConfirm={w.setLocation} />
+            </div>
+          )}
+
+          {/* Results */}
           {w.phase === "results" && (
-            <button
-              onClick={w.reset}
-              className="mx-auto mt-4 block text-sm font-medium text-ink-soft hover:text-ink"
-            >
-              Start over
-            </button>
+            <div className="mx-auto w-[600px] max-w-full">
+              {w.isLoading ? (
+                <LoadingResults />
+              ) : (
+                <Results
+                  suggestions={w.suggestions}
+                  onCreateEvent={setActiveEvent}
+                />
+              )}
+              <button
+                onClick={w.reset}
+                className="mx-auto mt-4 block text-sm font-medium text-ink-soft hover:text-ink"
+              >
+                Start over
+              </button>
+            </div>
           )}
         </div>
 
-        {/* ── Activities Near You — its own one-row-tall window that scrolls
-             vertically to reveal more rows. Landing view only. ──────────── */}
-        {w.phase === "category" && (
-          <div className="mt-auto pt-16">
-            <ActivitiesNearYou />
+        {/* ── Composer pinned at the bottom ─────────────────────────────── */}
+        {inConversation && (
+          <div className="mx-auto w-[600px] max-w-full pt-4">
+            <ChatInput onSubmit={handleChat} />
           </div>
         )}
       </div>
@@ -105,39 +99,6 @@ export default function Page() {
         />
       )}
     </AppShell>
-  );
-}
-
-function AnswerTrail({ w }: { w: ReturnType<typeof useWizard> }) {
-  const { query } = w;
-  const chips: { label: string; step: "category" | "refinement" }[] = [];
-
-  if (query.category) {
-    chips.push({ label: getCategory(query.category).label, step: "category" });
-  }
-  if (query.refinement) {
-    const text =
-      query.refinement === SURPRISE_ME
-        ? "Surprise me"
-        : (query.refinement as string[]).join(", ");
-    chips.push({ label: text, step: "refinement" });
-  }
-
-  if (chips.length === 0) return null;
-
-  return (
-    <div className="mb-6 flex flex-wrap items-center gap-2">
-      {chips.map((c) => (
-        <button
-          key={c.step}
-          onClick={() => w.editStep(c.step)}
-          className="group inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-ink/5"
-        >
-          {c.label}
-          <Pencil className="h-3 w-3 text-ink-faint opacity-0 transition group-hover:opacity-100" />
-        </button>
-      ))}
-    </div>
   );
 }
 

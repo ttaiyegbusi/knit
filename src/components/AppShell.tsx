@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, User, Sparkles, Settings, Search, Users, Bell } from "lucide-react";
+import { Logo } from "./Logo";
 
 /**
  * Layout geometry (corrected):
@@ -23,7 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <aside className="flex w-[72px] shrink-0 flex-col items-center rounded-[10px] bg-surface/90 py-3 shadow-soft backdrop-blur-sm">
           {/* Brand tile + divider */}
           <div className="flex w-full flex-col items-center pb-3">
-            <div className="knit-mark h-9 w-9" aria-label="Knit" />
+            <Logo size={36} />
           </div>
           <div className="mb-3 h-px w-9 bg-line" />
 
