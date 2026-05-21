@@ -61,6 +61,10 @@ function ActivityCard({ suggestion: s }: { suggestion: Suggestion }) {
       className="relative h-36 overflow-hidden rounded-xl bg-cover bg-center"
       style={{ backgroundImage: `url(${s.imageUrl})` }}
     >
+      {/* Rating badge — top-left pill, real rating from the engine */}
+      <span className="absolute left-2 top-2 inline-flex items-center gap-0.5 rounded-md bg-black/45 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
+        {s.rating} ★
+      </span>
       {/* Minimal bottom scrim purely for text legibility */}
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 p-2 text-white">

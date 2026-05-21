@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Settings } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { StepCategory } from "@/components/StepCategory";
-import { StepLocation } from "@/components/StepLocation";
 import { Conversation } from "@/components/Conversation";
+import { KnitBubble } from "@/components/ChatBubbles";
 import { ActivitiesNearYou } from "@/components/ActivitiesNearYou";
-import { Results } from "@/components/Results";
 import { ChatInput } from "@/components/ChatInput";
 import { EventSheet } from "@/components/EventSheet";
 import { Logo } from "@/components/Logo";
@@ -25,7 +24,7 @@ export default function Page() {
   }
 
   const isLanding = w.phase === "category";
-  const inConversation = w.phase === "refinement" || w.phase === "location";
+  const inConversation = w.phase === "refinement";
 
   return (
     <AppShell>
@@ -82,28 +81,9 @@ export default function Page() {
               />
             )}
 
-            {w.phase === "location" && (
-              <div className="mx-auto mt-6 w-[600px] max-w-full">
-                <StepLocation onConfirm={w.setLocation} />
-              </div>
-            )}
-
             {w.phase === "results" && (
-              <div className="mx-auto w-[600px] max-w-full">
-                {w.isLoading ? (
-                  <LoadingResults />
-                ) : (
-                  <Results
-                    suggestions={w.suggestions}
-                    onCreateEvent={setActiveEvent}
-                  />
-                )}
-                <button
-                  onClick={w.reset}
-                  className="mx-auto mt-4 block text-sm font-medium text-ink-soft hover:text-ink"
-                >
-                  Start over
-                </button>
+              <div className="mx-auto mt-6 w-[600px] max-w-full">
+                <ResultsTurn w={w} />
               </div>
             )}
           </div>
@@ -124,6 +104,34 @@ export default function Page() {
         />
       )}
     </AppShell>
+  );
+}
+
+function ResultsTurn({ w }: { w: ReturnType<typeof useWizard> }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <KnitBubble>
+        <div className="rounded-2xl rounded-tl-md bg-surface-muted px-4 py-3 text-sm font-medium text-ink">
+          <p className="leading-relaxed">
+            Okay, based on your preference and location; here are some
+            suggestions
+          </p>
+          <button
+            onClick={() => w.changeLocation()}
+            className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#FF4275] hover:underline"
+          >
+            <Settings className="h-3.5 w-3.5" />
+            Change location
+          </button>
+        </div>
+      </KnitBubble>
+
+      {w.isLoading ? (
+        <LoadingResults />
+      ) : (
+        <ActivitiesNearYou />
+      )}
+    </div>
   );
 }
 
