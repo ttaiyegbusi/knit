@@ -234,4 +234,32 @@ export async function getSuggestions(
     .slice(0, 6);
 }
 
+/**
+ * The standing "Activities Near You" feed on the landing view. Unlike the
+ * wizard's tailored results, this is a broad mix across ALL categories — it's
+ * what's around the user right now, not an answer to their three questions.
+ * Wired to the same catalog so cards are real data; later this becomes a
+ * "nearby places" API call behind the same signature.
+ */
+export async function getActivitiesNearYou(): Promise<Suggestion[]> {
+  await new Promise((r) => setTimeout(r, 400));
+
+  // Flatten every category into one pool, then pad to ~15 so there are
+  // enough rows to scroll through.
+  const base: Suggestion[] = (
+    Object.keys(CATALOG) as CategoryId[]
+  ).flatMap((cat) =>
+    CATALOG[cat].map((s, i) => ({ ...s, id: `near-${cat}-${i}` })),
+  );
+
+  const out: Suggestion[] = [];
+  let n = 0;
+  while (out.length < 15) {
+    const s = base[n % base.length];
+    out.push({ ...s, id: `near-${n}` });
+    n++;
+  }
+  return out;
+}
+
 export { SURPRISE_ME };

@@ -8,7 +8,7 @@ import { StepRefinement } from "@/components/StepRefinement";
 import { StepLocation } from "@/components/StepLocation";
 import { Results } from "@/components/Results";
 import { ChatInput } from "@/components/ChatInput";
-import { RestaurantsNearYou } from "@/components/RestaurantsNearYou";
+import { ActivitiesNearYou } from "@/components/ActivitiesNearYou";
 import { EventSheet } from "@/components/EventSheet";
 import { useWizard } from "@/lib/useWizard";
 import { parseFreeText } from "@/lib/parser";
@@ -28,69 +28,73 @@ export default function Page() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-4xl pb-16">
-        {/* Greeting — only on the first step, like the screenshot */}
-        {showGreeting && (
-          <div className="mb-10 flex flex-col items-center text-center">
-            <div className="knit-mark mb-3 h-12 w-12" />
-            <p className="text-sm text-ink-soft">Hi, there</p>
-            <h1 className="font-display text-3xl text-ink">
-              What do you feel like doing?
-            </h1>
-          </div>
-        )}
-
-        {/* Breadcrumb of answered steps (lets you go back and edit) */}
-        {!showGreeting && <AnswerTrail w={w} />}
-
-        {/* The active step */}
-        <div className="mb-8">
-          {w.phase === "category" && <StepCategory onPick={w.setCategory} />}
-
-          {w.phase === "refinement" && w.query.category && (
-            <StepRefinement
-              category={w.query.category}
-              onConfirm={w.setRefinement}
-              onSkip={w.skipRefinement}
-            />
+      <div className="mx-auto flex min-h-full max-w-4xl flex-col pb-4">
+        {/* ── Top content group ─────────────────────────────────────────── */}
+        <div>
+          {/* Greeting — only on the first step, like the screenshot */}
+          {showGreeting && (
+            <div className="mb-10 flex flex-col items-center text-center">
+              <div className="knit-mark mb-3 h-12 w-12" />
+              <p className="text-sm text-ink-soft">Hi, there</p>
+              <h1 className="font-display text-3xl text-ink">
+                What do you feel like doing?
+              </h1>
+            </div>
           )}
 
-          {w.phase === "location" && <StepLocation onConfirm={w.setLocation} />}
+          {/* Breadcrumb of answered steps (lets you go back and edit) */}
+          {!showGreeting && <AnswerTrail w={w} />}
 
+          {/* The active step */}
+          <div className="mb-8">
+            {w.phase === "category" && <StepCategory onPick={w.setCategory} />}
+
+            {w.phase === "refinement" && w.query.category && (
+              <StepRefinement
+                category={w.query.category}
+                onConfirm={w.setRefinement}
+                onSkip={w.skipRefinement}
+              />
+            )}
+
+            {w.phase === "location" && <StepLocation onConfirm={w.setLocation} />}
+
+            {w.phase === "results" && (
+              <>
+                {w.isLoading ? (
+                  <LoadingResults />
+                ) : (
+                  <Results
+                    suggestions={w.suggestions}
+                    onCreateEvent={setActiveEvent}
+                  />
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Chat shortcut — present on the first two steps as a fast path */}
+          {(w.phase === "category" || w.phase === "refinement") && (
+            <ChatInput onSubmit={handleChat} />
+          )}
+
+          {/* Restart */}
           {w.phase === "results" && (
-            <>
-              {w.isLoading ? (
-                <LoadingResults />
-              ) : (
-                <Results
-                  suggestions={w.suggestions}
-                  onCreateEvent={setActiveEvent}
-                />
-              )}
-            </>
+            <button
+              onClick={w.reset}
+              className="mx-auto mt-4 block text-sm font-medium text-ink-soft hover:text-ink"
+            >
+              Start over
+            </button>
           )}
         </div>
 
-        {/* Chat shortcut — present on the first two steps as a fast path */}
-        {(w.phase === "category" || w.phase === "refinement") && (
-          <ChatInput onSubmit={handleChat} />
-        )}
-
-        {/* Restaurants Near You — a standing discovery feed, landing only */}
+        {/* ── Activities Near You — anchored to the bottom of the surface,
+             with the open gap above it (mt-auto). Landing view only. ──── */}
         {w.phase === "category" && (
-          <div className="mt-8">
-            <RestaurantsNearYou />
+          <div className="mt-auto pt-16">
+            <ActivitiesNearYou />
           </div>
-        )}
-
-        {/* Restart */}
-        {w.phase === "results" && (
-          <button
-            onClick={w.reset}
-            className="mx-auto mt-4 block text-sm font-medium text-ink-soft hover:text-ink"
-          >
-            Start over
-          </button>
         )}
       </div>
 

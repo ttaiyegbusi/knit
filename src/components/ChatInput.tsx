@@ -27,10 +27,10 @@ export function ChatInput({
   }
 
   return (
-    // OUTER container
-    <div className="rounded-2xl border border-line bg-surface-muted/60 p-3">
+    // OUTER container — 4px padding all round
+    <div className="rounded-2xl border border-line bg-surface-muted/60 p-1">
       {/* Header row */}
-      <div className="mb-2.5 flex items-center gap-2 px-1 text-sm font-semibold text-ink">
+      <div className="mb-1.5 flex items-center gap-2 px-2 pt-1.5 text-sm font-semibold text-ink">
         <span className="knit-mark h-4 w-4" />
         Start a New Chat
       </div>
