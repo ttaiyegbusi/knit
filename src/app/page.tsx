@@ -28,7 +28,7 @@ export default function Page() {
 
   return (
     <AppShell>
-      <div className="mx-auto flex min-h-full max-w-4xl flex-col pb-4">
+      <div className="mx-auto flex min-h-full w-[600px] max-w-full flex-col pb-4">
         {/* ── Top content group ─────────────────────────────────────────── */}
         <div>
           {/* Greeting — only on the first step, like the screenshot */}
@@ -92,7 +92,7 @@ export default function Page() {
         {/* ── Activities Near You — anchored to the bottom of the surface,
              with the open gap above it (mt-auto). Landing view only. ──── */}
         {w.phase === "category" && (
-          <div className="mt-auto pt-16">
+          <div className="mt-auto pt-16 pb-10">
             <ActivitiesNearYou />
           </div>
         )}

@@ -71,10 +71,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
 
-          {/* White content surface — fills remaining height, scrolls inside */}
-          <main className="min-h-0 flex-1 overflow-y-auto rounded-[1.25rem] bg-surface px-5 py-7 shadow-sm sm:px-8 sm:py-9">
-            {children}
-          </main>
+          {/* Content surface frame — the single scroll region, with a white
+              fade fixed to its BOTTOM edge. Content scrolls beneath the fade
+              and dissolves into white at the container's lower boundary. */}
+          <div className="relative min-h-0 flex-1 overflow-hidden rounded-[1.25rem] bg-surface shadow-sm">
+            <main className="h-full overflow-y-auto px-5 py-7 sm:px-8 sm:py-9">
+              {children}
+            </main>
+            {/* Fixed bottom fade — belongs to the container, not the content */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 rounded-b-[1.25rem] bg-gradient-to-t from-surface via-surface/85 to-transparent" />
+          </div>
         </div>
       </div>
     </>
