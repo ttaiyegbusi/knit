@@ -35,17 +35,18 @@ export function ChatInput({
         Start a New Chat
       </div>
 
-      {/* NESTED inner container — the input surface, fixed 90px height */}
-      <div className="relative h-[90px] rounded-xl border border-line bg-surface">
-        {/* "+" affordance, bottom-left */}
+      {/* NESTED inner container — borderless, fixed 90px height. The "+",
+          the text, and the send button all sit together on one bottom row. */}
+      <div className="flex h-[90px] items-end gap-2 rounded-xl bg-surface px-3 py-3">
+        {/* "+" affordance */}
         <button
           aria-label="Add"
-          className="absolute bottom-3 left-3 grid h-7 w-7 place-items-center rounded-lg text-ink-faint transition hover:bg-ink/5"
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-ink-faint transition hover:bg-ink/5"
         >
           <Plus className="h-4 w-4" />
         </button>
 
-        {/* Text input */}
+        {/* Text input — beside the "+", same row */}
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -55,15 +56,16 @@ export function ChatInput({
               submit();
             }
           }}
+          rows={1}
           placeholder="Type in here...."
-          className="absolute inset-x-11 top-3 bottom-3 resize-none bg-transparent text-sm text-ink outline-none placeholder:text-ink-faint"
+          className="h-7 flex-1 resize-none self-center bg-transparent py-1 text-sm text-ink outline-none placeholder:text-ink-faint"
         />
 
-        {/* Circular send button, bottom-right */}
+        {/* Circular send button */}
         <button
           onClick={submit}
           aria-label="Send"
-          className="absolute bottom-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-surface-muted text-ink-soft shadow-soft transition hover:bg-ink/5 disabled:opacity-40"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-muted text-ink-soft shadow-soft transition hover:bg-ink/5 disabled:opacity-40"
           disabled={!text.trim()}
         >
           <ArrowUp className="h-4 w-4" />

@@ -33,7 +33,7 @@ export function ActivitiesNearYou() {
         <span className="text-sm text-ink-soft">{items.length} suggestions</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-4 gap-2.5">
         {items.map((s) => (
           <ActivityCard key={s.id} suggestion={s} />
         ))}
@@ -50,14 +50,14 @@ function ActivityCard({ suggestion: s }: { suggestion: Suggestion }) {
       : cat.label.replace(/^(Play a |Grab a |Do something )/, "");
   return (
     <article
-      className="relative h-40 overflow-hidden rounded-xl bg-cover bg-center"
+      className="relative h-36 overflow-hidden rounded-xl bg-cover bg-center"
       style={{ backgroundImage: `url(${s.imageUrl})` }}
     >
       {/* Minimal bottom scrim purely for text legibility */}
-      <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-2.5 text-white">
-        <p className="text-sm font-semibold leading-tight">{s.name}</p>
-        <p className="text-[11px] text-white/85">
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 p-2 text-white">
+        <p className="text-xs font-semibold leading-tight">{s.name}</p>
+        <p className="text-[10px] text-white/85">
           {label} · {s.proximity.distanceKm}km
         </p>
       </div>
