@@ -3,6 +3,15 @@
 import { useState } from "react";
 import { Plus, ArrowUp } from "lucide-react";
 
+/**
+ * Chat block — matched to chat.png:
+ *  - An OUTER container (rounded, subtle fill) that holds a header row
+ *    ("Start a New Chat" with the brand mark) at the top…
+ *  - …and a NESTED inner container below it: the white input surface, 90px
+ *    tall, holding the "+" affordance, the placeholder, and the circular
+ *    send button pinned bottom-right.
+ *  Padding is intentionally non-conventional and set explicitly.
+ */
 export function ChatInput({
   onSubmit,
 }: {
@@ -18,15 +27,25 @@ export function ChatInput({
   }
 
   return (
-    <div className="rounded-2xl bg-surface-muted p-3">
-      <div className="mb-2 flex items-center gap-1.5 text-sm font-medium text-ink-soft">
+    // OUTER container
+    <div className="rounded-2xl border border-line bg-surface-muted/60 p-3">
+      {/* Header row */}
+      <div className="mb-2.5 flex items-center gap-2 px-1 text-sm font-semibold text-ink">
         <span className="knit-mark h-4 w-4" />
-        Or just tell us
+        Start a New Chat
       </div>
-      <div className="flex items-end gap-2 rounded-xl bg-surface px-3 py-2 shadow-sm">
-        <button className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink-faint transition hover:bg-ink/5">
+
+      {/* NESTED inner container — the input surface, fixed 90px height */}
+      <div className="relative h-[90px] rounded-xl border border-line bg-surface">
+        {/* "+" affordance, bottom-left */}
+        <button
+          aria-label="Add"
+          className="absolute bottom-3 left-3 grid h-7 w-7 place-items-center rounded-lg text-ink-faint transition hover:bg-ink/5"
+        >
           <Plus className="h-4 w-4" />
         </button>
+
+        {/* Text input */}
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -36,14 +55,16 @@ export function ChatInput({
               submit();
             }
           }}
-          rows={1}
-          placeholder="e.g. Italian dinner near me…"
-          className="max-h-24 flex-1 resize-none bg-transparent py-1.5 text-sm text-ink outline-none placeholder:text-ink-faint"
+          placeholder="Type in here...."
+          className="absolute inset-x-11 top-3 bottom-3 resize-none bg-transparent text-sm text-ink outline-none placeholder:text-ink-faint"
         />
+
+        {/* Circular send button, bottom-right */}
         <button
           onClick={submit}
+          aria-label="Send"
+          className="absolute bottom-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-surface-muted text-ink-soft shadow-sm transition hover:bg-ink/5 disabled:opacity-40"
           disabled={!text.trim()}
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink text-white transition disabled:opacity-30"
         >
           <ArrowUp className="h-4 w-4" />
         </button>

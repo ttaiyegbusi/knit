@@ -8,6 +8,7 @@ import { StepRefinement } from "@/components/StepRefinement";
 import { StepLocation } from "@/components/StepLocation";
 import { Results } from "@/components/Results";
 import { ChatInput } from "@/components/ChatInput";
+import { RestaurantsNearYou } from "@/components/RestaurantsNearYou";
 import { EventSheet } from "@/components/EventSheet";
 import { useWizard } from "@/lib/useWizard";
 import { parseFreeText } from "@/lib/parser";
@@ -73,6 +74,13 @@ export default function Page() {
         {/* Chat shortcut — present on the first two steps as a fast path */}
         {(w.phase === "category" || w.phase === "refinement") && (
           <ChatInput onSubmit={handleChat} />
+        )}
+
+        {/* Restaurants Near You — a standing discovery feed, landing only */}
+        {w.phase === "category" && (
+          <div className="mt-8">
+            <RestaurantsNearYou />
+          </div>
         )}
 
         {/* Restart */}

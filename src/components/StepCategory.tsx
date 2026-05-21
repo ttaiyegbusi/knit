@@ -2,6 +2,7 @@
 
 import { CATEGORIES } from "@/lib/categories";
 import type { CategoryId } from "@/lib/types";
+import { VibeIcon } from "./VibeIcon";
 
 export function StepCategory({
   onPick,
@@ -19,11 +20,7 @@ export function StepCategory({
             style={{ animationDelay: `${i * 60}ms` }}
             className="animate-rise group flex flex-col gap-7 rounded-2xl bg-surface-muted p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md"
           >
-            <span
-              className={`grid h-9 w-9 place-items-center rounded-xl text-base shadow-sm ${cat.chipClass}`}
-            >
-              <span className="grayscale-0">{cat.emoji}</span>
-            </span>
+            <VibeIcon category={cat.id} size={36} />
             <span className="text-sm font-semibold text-ink">{cat.label}</span>
           </button>
         ))}
