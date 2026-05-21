@@ -47,19 +47,20 @@ export function ChatInput({
           <Plus className="h-4 w-4" />
         </button>
 
-        {/* Text input — beside the "+", same row */}
-        <textarea
+        {/* Text input — single-line input centers its text on the same line
+            as the "+", unlike a textarea which top-anchors its content */}
+        <input
+          type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter") {
               e.preventDefault();
               submit();
             }
           }}
-          rows={1}
           placeholder="Type in here...."
-          className="h-7 flex-1 resize-none self-center bg-transparent py-1 text-sm text-ink outline-none placeholder:text-ink-faint"
+          className="h-7 flex-1 bg-transparent text-sm leading-7 text-ink outline-none placeholder:text-ink-faint"
         />
 
         {/* Circular send button */}
