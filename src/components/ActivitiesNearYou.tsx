@@ -11,7 +11,11 @@ import { getCategory } from "@/lib/categories";
  * This is just a tall block of activity cards that flows within the surface
  * and dissolves against the fade fixed to the surface's bottom edge.
  */
-export function ActivitiesNearYou() {
+export function ActivitiesNearYou({
+  onSelect,
+}: {
+  onSelect?: (s: Suggestion) => void;
+}) {
   const [items, setItems] = useState<Suggestion[]>([]);
 
   useEffect(() => {
@@ -39,7 +43,11 @@ export function ActivitiesNearYou() {
         <div className="max-h-36 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="grid grid-cols-4 gap-2.5">
             {items.map((s) => (
-              <ActivityCard key={s.id} suggestion={s} />
+              <ActivityCard
+                key={s.id}
+                suggestion={s}
+                onSelect={onSelect}
+              />
             ))}
           </div>
         </div>
@@ -50,7 +58,13 @@ export function ActivitiesNearYou() {
   );
 }
 
-function ActivityCard({ suggestion: s }: { suggestion: Suggestion }) {
+function ActivityCard({
+  suggestion: s,
+  onSelect,
+}: {
+  suggestion: Suggestion;
+  onSelect?: (s: Suggestion) => void;
+}) {
   const cat = getCategory(s.category);
   const label =
     s.category === "eat_out"
@@ -58,7 +72,8 @@ function ActivityCard({ suggestion: s }: { suggestion: Suggestion }) {
       : cat.label.replace(/^(Play a |Grab a |Do something )/, "");
   return (
     <article
-      className="relative h-36 overflow-hidden rounded-xl bg-cover bg-center"
+      onClick={() => onSelect?.(s)}
+      className="relative h-36 cursor-pointer overflow-hidden rounded-xl bg-cover bg-center ring-2 ring-transparent transition hover:ring-[#FF4275]"
       style={{ backgroundImage: `url(${s.imageUrl})` }}
     >
       {/* Rating badge — top-left pill, real rating from the engine */}

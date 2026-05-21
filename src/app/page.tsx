@@ -9,6 +9,7 @@ import { KnitBubble } from "@/components/ChatBubbles";
 import { ActivitiesNearYou } from "@/components/ActivitiesNearYou";
 import { ChatInput } from "@/components/ChatInput";
 import { EventSheet } from "@/components/EventSheet";
+import { SuggestionModal } from "@/components/SuggestionModal";
 import { Logo } from "@/components/Logo";
 import { useWizard } from "@/lib/useWizard";
 import { parseFreeText } from "@/lib/parser";
@@ -17,6 +18,7 @@ import { type Suggestion } from "@/lib/types";
 export default function Page() {
   const w = useWizard();
   const [activeEvent, setActiveEvent] = useState<Suggestion | null>(null);
+  const [selected, setSelected] = useState<Suggestion | null>(null);
 
   function handleChat(text: string) {
     const { query } = parseFreeText(text);
@@ -52,7 +54,7 @@ export default function Page() {
               </div>
 
               <div className="mt-auto pt-16">
-                <ActivitiesNearYou />
+                <ActivitiesNearYou onSelect={setSelected} />
               </div>
             </div>
           </div>
@@ -83,7 +85,7 @@ export default function Page() {
 
             {w.phase === "results" && (
               <div className="mx-auto mt-6 w-[600px] max-w-full">
-                <ResultsTurn w={w} />
+                <ResultsTurn w={w} onSelect={setSelected} />
               </div>
             )}
           </div>
@@ -103,11 +105,37 @@ export default function Page() {
           onClose={() => setActiveEvent(null)}
         />
       )}
+
+      {/* Suggestion detail modal — opens on card tap. "Create event" closes it
+          and hands off to the existing pre-filled event sheet (Flow 3). */}
+      {selected && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/20 p-4"
+          onClick={() => setSelected(null)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <SuggestionModal
+              suggestion={selected}
+              onClose={() => setSelected(null)}
+              onCreateEvent={(s) => {
+                setSelected(null);
+                setActiveEvent(s);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
 
-function ResultsTurn({ w }: { w: ReturnType<typeof useWizard> }) {
+function ResultsTurn({
+  w,
+  onSelect,
+}: {
+  w: ReturnType<typeof useWizard>;
+  onSelect: (s: Suggestion) => void;
+}) {
   return (
     <div className="flex flex-col gap-4">
       <KnitBubble>
@@ -129,7 +157,7 @@ function ResultsTurn({ w }: { w: ReturnType<typeof useWizard> }) {
       {w.isLoading ? (
         <LoadingResults />
       ) : (
-        <ActivitiesNearYou />
+        <ActivitiesNearYou onSelect={onSelect} />
       )}
     </div>
   );
