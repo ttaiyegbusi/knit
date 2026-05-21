@@ -27,8 +27,8 @@ export function ChatInput({
   }
 
   return (
-    // OUTER container — 4px padding all round
-    <div className="rounded-2xl border border-line bg-surface-muted/60 p-1">
+    // OUTER container — 4px padding all round, no border
+    <div className="rounded-2xl bg-surface-muted/60 p-1">
       {/* Header row */}
       <div className="mb-1.5 flex items-center gap-2 px-2 pt-1.5 text-sm font-semibold text-ink">
         <span className="knit-mark h-4 w-4" />
@@ -63,7 +63,7 @@ export function ChatInput({
         <button
           onClick={submit}
           aria-label="Send"
-          className="absolute bottom-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-surface-muted text-ink-soft shadow-sm transition hover:bg-ink/5 disabled:opacity-40"
+          className="absolute bottom-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-surface-muted text-ink-soft shadow-soft transition hover:bg-ink/5 disabled:opacity-40"
           disabled={!text.trim()}
         >
           <ArrowUp className="h-4 w-4" />

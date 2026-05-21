@@ -39,7 +39,7 @@ export function EventSheet({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/30 p-0 sm:items-center sm:p-4">
-      <div className="animate-rise w-full max-w-lg overflow-hidden rounded-t-3xl bg-surface shadow-xl sm:rounded-3xl">
+      <div className="animate-rise w-full max-w-lg overflow-hidden rounded-t-3xl bg-surface shadow-soft sm:rounded-3xl">
         {published ? (
           <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
             <div className="grid h-14 w-14 place-items-center rounded-full bg-accent/10 text-accent">

@@ -20,7 +20,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex h-screen gap-3 p-3 sm:gap-4 sm:p-4">
         {/* ── Floating sidebar ─────────────────────────────────────────── */}
-        <aside className="flex w-[72px] shrink-0 flex-col items-center rounded-[10px] bg-surface/90 py-3 shadow-sm backdrop-blur-sm">
+        <aside className="flex w-[72px] shrink-0 flex-col items-center rounded-[10px] bg-surface/90 py-3 shadow-soft backdrop-blur-sm">
           {/* Brand tile + divider */}
           <div className="flex w-full flex-col items-center pb-3">
             <div className="knit-mark h-9 w-9" aria-label="Knit" />
@@ -53,19 +53,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
           {/* Top nav row */}
           <header className="flex shrink-0 items-center justify-between gap-4">
-            <div className="flex items-center gap-2 rounded-full bg-surface/90 px-4 py-2 text-sm font-semibold text-ink shadow-sm backdrop-blur-sm">
+            <div className="flex items-center gap-2 rounded-full bg-surface/90 px-4 py-2 text-sm font-semibold text-ink shadow-soft backdrop-blur-sm">
               <Sparkles className="h-4 w-4 text-ink-soft" />
               Smart Suggestion
             </div>
             <div className="flex items-center gap-2">
-              <div className="hidden items-center gap-2 rounded-full bg-surface/90 px-4 py-2.5 text-sm text-ink-faint shadow-sm backdrop-blur-sm md:flex">
+              <div className="hidden items-center gap-2 rounded-full bg-surface/90 px-4 py-2.5 text-sm text-ink-faint shadow-soft backdrop-blur-sm md:flex">
                 <Search className="h-4 w-4" />
                 <span className="w-44">Search</span>
               </div>
-              <button className="grid h-10 w-10 place-items-center rounded-full bg-surface/90 text-ink-soft shadow-sm backdrop-blur-sm transition hover:text-ink">
+              <button className="grid h-10 w-10 place-items-center rounded-full bg-surface/90 text-ink-soft shadow-soft backdrop-blur-sm transition hover:text-ink">
                 <Users className="h-4 w-4" />
               </button>
-              <button className="grid h-10 w-10 place-items-center rounded-full bg-surface/90 text-ink-soft shadow-sm backdrop-blur-sm transition hover:text-ink">
+              <button className="grid h-10 w-10 place-items-center rounded-full bg-surface/90 text-ink-soft shadow-soft backdrop-blur-sm transition hover:text-ink">
                 <Bell className="h-4 w-4" />
               </button>
             </div>
@@ -74,7 +74,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {/* Content surface frame — the single scroll region, with a white
               fade fixed to its BOTTOM edge. Content scrolls beneath the fade
               and dissolves into white at the container's lower boundary. */}
-          <div className="relative min-h-0 flex-1 overflow-hidden rounded-[1.25rem] bg-surface shadow-sm">
+          <div className="relative min-h-0 flex-1 overflow-hidden rounded-[1.25rem] bg-surface shadow-soft">
             <main className="h-full overflow-y-auto px-5 py-7 sm:px-8 sm:py-9">
               {children}
             </main>
