@@ -27,7 +27,7 @@ export default function Page() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl pb-16">
+      <div className="mx-auto max-w-4xl pb-16">
         {/* Greeting — only on the first step, like the screenshot */}
         {showGreeting && (
           <div className="mb-10 flex flex-col items-center text-center">

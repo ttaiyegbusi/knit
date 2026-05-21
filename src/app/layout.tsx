@@ -1,5 +1,16 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
+
+// Self-hosted Baloo 2 (variable). Bundled with the app — never fetched over
+// the network, so the build is offline-safe and the typeface is exactly the
+// one provided.
+const baloo = localFont({
+  src: "./fonts/Baloo2.ttf",
+  variable: "--font-baloo",
+  display: "swap",
+  weight: "400 800",
+});
 
 export const metadata: Metadata = {
   title: "Knit · Smart Suggestion",
@@ -12,21 +23,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
-        {/* Loaded at runtime so the build doesn't depend on network access.
-            Falls back gracefully to the CSS stack if unavailable. */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400&family=Plus+Jakarta+Sans:wght@400..700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="antialiased">{children}</body>
+      <body className={`${baloo.variable} antialiased`}>{children}</body>
     </html>
   );
 }

@@ -1,12 +1,10 @@
 @import "tailwindcss";
 
 /* ── Knit design tokens ──────────────────────────────────────────────────
-   Matched to the Smart Suggestion screenshot: soft warm-neutral canvas, a
-   white content surface with generous rounding, muted ink, and the rainbow
-   brand accent used sparingly. Light, friendly, unhurried. */
+   Floating, rounded surfaces sitting on a soft image background.
+   Typeface: Baloo 2 (rounded, friendly) — used throughout. */
 
 :root {
-  --canvas: #f4f1f4;
   --surface: #ffffff;
   --surface-muted: #f6f6f7;
   --ink: #1c1c1e;
@@ -14,15 +12,12 @@
   --ink-faint: #9a9aa0;
   --line: #ececef;
   --accent: #7c3aed;
-  --radius-lg: 1.5rem;
+  --radius-card: 1.25rem;
   --radius-md: 1rem;
   --radius-sm: 0.75rem;
-  --font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Fraunces', ui-serif, Georgia, serif;
 }
 
 @theme inline {
-  --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
   --color-ink: var(--ink);
@@ -30,17 +25,38 @@
   --color-ink-faint: var(--ink-faint);
   --color-line: var(--line);
   --color-accent: var(--accent);
-  --font-sans: var(--font-body);
-  --font-display-family: var(--font-display);
+  --font-sans: var(--font-baloo);
+}
+
+html, body {
+  height: 100%;
 }
 
 body {
-  background: var(--canvas);
   color: var(--ink);
-  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-baloo), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
+/* The real background image — fixed, covering the viewport, everything
+   floats on top of it. */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("/bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Baloo 2 is a display face; nudge headings to use its heavier weights. */
+.font-display {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* The Knit brand mark — woven rainbow disc, rendered in CSS. */
 .knit-mark {
   border-radius: 9999px;
   background: conic-gradient(
@@ -69,9 +85,4 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
   transform: translateX(-100%);
   animation: shimmer 1.4s infinite;
-}
-
-.font-display {
-  font-family: var(--font-display);
-  letter-spacing: -0.01em;
 }
