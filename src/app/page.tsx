@@ -89,11 +89,10 @@ export default function Page() {
           )}
         </div>
 
-        {/* ── Activities Near You — pushed to the bottom; only the top of the
-             first row peeks above the fold, the fixed bottom fade washes over
-             it, and the rest is revealed as the user scrolls. ─────────────── */}
+        {/* ── Activities Near You — its own one-row-tall window that scrolls
+             vertically to reveal more rows. Landing view only. ──────────── */}
         {w.phase === "category" && (
-          <div className="mt-auto pt-12">
+          <div className="mt-auto pt-16">
             <ActivitiesNearYou />
           </div>
         )}

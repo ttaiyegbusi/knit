@@ -18,7 +18,7 @@ export function StepCategory({
             key={cat.id}
             onClick={() => onPick(cat.id)}
             style={{ animationDelay: `${i * 60}ms` }}
-            className="animate-rise group flex flex-col gap-7 rounded-2xl bg-surface-muted p-4 text-left transition hover:-translate-y-0.5 hover-shadow-soft"
+            className="animate-rise group flex flex-col gap-7 rounded-2xl bg-surface-muted p-4 text-left ring-2 ring-transparent transition hover:ring-[#FF4275]"
           >
             <VibeIcon category={cat.id} size={36} />
             <span className="text-sm font-semibold text-ink">{cat.label}</span>

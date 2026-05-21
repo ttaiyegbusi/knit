@@ -71,17 +71,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
 
-          {/* Content surface frame — the single scroll region, with a white
-              fade fixed to its BOTTOM edge. Content scrolls beneath the fade
-              and dissolves into white at the container's lower boundary. */}
+          {/* Content surface frame — scrolls internally. */}
           <div className="relative min-h-0 flex-1 overflow-hidden rounded-[1.25rem] bg-surface shadow-soft">
             <main className="h-full overflow-y-auto px-5 py-7 sm:px-8 sm:py-9">
               {children}
             </main>
-            {/* Fixed bottom fade — belongs to the container, not the content.
-                Tall enough to cut ACROSS the first row of activity cards so
-                they partially dissolve, signalling more below on scroll. */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 rounded-b-[1.25rem] bg-gradient-to-t from-surface via-surface/90 to-transparent" />
           </div>
         </div>
       </div>
