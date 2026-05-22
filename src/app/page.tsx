@@ -188,14 +188,16 @@ export default function Page() {
         />
       )}
 
-      {/* Suggestion detail modal — opens on card tap. "Create event" closes it
-          and hands off to the existing pre-filled event sheet (Flow 3). */}
+      {/* Suggestion detail — a floating popover anchored bottom-right over the
+          activities area. No dimming backdrop; just a subtle elevation shadow.
+          An invisible catcher closes it on outside-click. */}
       {selected && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/20 p-4"
-          onClick={() => setSelected(null)}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setSelected(null)}
+          />
+          <div className="fixed bottom-28 right-8 z-50 animate-rise">
             <SuggestionModal
               suggestion={selected}
               onClose={() => setSelected(null)}
@@ -205,7 +207,7 @@ export default function Page() {
               }}
             />
           </div>
-        </div>
+        </>
       )}
     </AppShell>
   );
