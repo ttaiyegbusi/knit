@@ -24,7 +24,10 @@ export function SuggestionModal({
   const photos = s.gallery && s.gallery.length > 0 ? s.gallery : [s.imageUrl];
 
   return (
-    <div className="w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-surface shadow-soft ring-1 ring-line">
+    <div
+      className="w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-surface ring-1 ring-line"
+      style={{ boxShadow: "0 8px 28px rgba(17,17,26,0.10), 0 2px 8px rgba(17,17,26,0.06)" }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between gap-2 px-4 pt-4">
         <div className="flex items-center gap-2">
