@@ -37,22 +37,12 @@ export function ActivitiesNearYou({
         <span className="text-sm text-ink-soft">{items.length} suggestions</span>
       </div>
 
-      {/* One row tall at rest; the rest scroll vertically WITHIN this window.
-          A bottom fade on this window signals more rows below. */}
-      <div className="relative">
-        <div className="max-h-36 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="grid grid-cols-4 gap-2.5">
-            {items.map((s) => (
-              <ActivityCard
-                key={s.id}
-                suggestion={s}
-                onSelect={onSelect}
-              />
-            ))}
-          </div>
-        </div>
-        {/* Bottom fade — the "scroll for more rows" cue for this window */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-surface to-transparent" />
+      {/* A full-height inline block — no internal scroll. All cards render in
+          full; the conversation's single scroll container handles everything. */}
+      <div className="grid grid-cols-4 gap-2.5">
+        {items.map((s) => (
+          <ActivityCard key={s.id} suggestion={s} onSelect={onSelect} />
+        ))}
       </div>
     </section>
   );
