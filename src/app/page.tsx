@@ -23,12 +23,6 @@ export default function Page() {
   const attachments = useAttachments();
   const [activeEvent, setActiveEvent] = useState<Suggestion | null>(null);
   const [selected, setSelected] = useState<Suggestion | null>(null);
-  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
-
-  function openSuggestion(s: Suggestion, rect: DOMRect | null) {
-    setAnchorRect(rect);
-    setSelected(s);
-  }
   const [drawer, setDrawer] = useState<"history" | "attachments" | null>(null);
   const [drawerContent, setDrawerContent] = useState<
     "history" | "attachments" | null
@@ -108,7 +102,7 @@ export default function Page() {
               </div>
 
               <div className="mt-auto pt-16">
-                <ActivitiesNearYou onSelect={openSuggestion} />
+                <ActivitiesNearYou onSelect={setSelected} />
               </div>
             </div>
           </div>
@@ -175,7 +169,7 @@ export default function Page() {
                 onPickCategory={w.setCategory}
                 onConfirmRefinement={w.setRefinement}
                 onSkipRefinement={w.skipRefinement}
-                onSelectSuggestion={openSuggestion}
+                onSelectSuggestion={setSelected}
               />
             </div>
 
@@ -203,12 +197,7 @@ export default function Page() {
             className="fixed inset-0 z-40"
             onClick={() => setSelected(null)}
           />
-          {/* Anchored to the FOURTH card's position (top row), to its right —
-              every card opens the popover at this same spot. */}
-          <div
-            className="fixed z-50 animate-rise"
-            style={fourthCardPosition(anchorRect)}
-          >
+          <div className="fixed bottom-28 right-8 z-50 animate-rise">
             <SuggestionModal
               suggestion={selected}
               onClose={() => setSelected(null)}
@@ -222,15 +211,6 @@ export default function Page() {
       )}
     </AppShell>
   );
-}
-
-/** Pins the popover just to the right of the fourth (top-row) card. */
-function fourthCardPosition(rect: DOMRect | null): React.CSSProperties {
-  const GAP = 16;
-  if (typeof window === "undefined" || !rect) {
-    return { right: 32, top: 120 };
-  }
-  return { left: rect.right + GAP, top: rect.top };
 }
 
 function MenuItem({

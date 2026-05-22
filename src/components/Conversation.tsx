@@ -21,7 +21,7 @@ export function Conversation({
   onPickCategory: (id: CategoryId) => void;
   onConfirmRefinement: (r: string[]) => void;
   onSkipRefinement: () => void;
-  onSelectSuggestion: (s: Suggestion, anchorRect: DOMRect | null) => void;
+  onSelectSuggestion: (s: Suggestion) => void;
 }) {
   const { query, phase } = w;
 

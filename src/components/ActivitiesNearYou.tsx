@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { getActivitiesNearYou } from "@/lib/engine";
 import type { Suggestion } from "@/lib/types";
 import { getCategory } from "@/lib/categories";
@@ -14,10 +14,9 @@ import { getCategory } from "@/lib/categories";
 export function ActivitiesNearYou({
   onSelect,
 }: {
-  onSelect?: (s: Suggestion, anchorRect: DOMRect | null) => void;
+  onSelect?: (s: Suggestion) => void;
 }) {
   const [items, setItems] = useState<Suggestion[]>([]);
-  const fourthRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -31,10 +30,6 @@ export function ActivitiesNearYou({
 
   if (items.length === 0) return null;
 
-  // Every card opens the popover at the FOURTH card's position (top row).
-  const handleSelect = (s: Suggestion) =>
-    onSelect?.(s, fourthRef.current?.getBoundingClientRect() ?? null);
-
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
@@ -45,13 +40,8 @@ export function ActivitiesNearYou({
       {/* A full-height inline block — no internal scroll. All cards render in
           full; the conversation's single scroll container handles everything. */}
       <div className="grid grid-cols-4 gap-2.5">
-        {items.map((s, i) => (
-          <ActivityCard
-            key={s.id}
-            suggestion={s}
-            onSelect={handleSelect}
-            cardRef={i === 3 ? fourthRef : undefined}
-          />
+        {items.map((s) => (
+          <ActivityCard key={s.id} suggestion={s} onSelect={onSelect} />
         ))}
       </div>
     </section>
@@ -61,11 +51,9 @@ export function ActivitiesNearYou({
 function ActivityCard({
   suggestion: s,
   onSelect,
-  cardRef,
 }: {
   suggestion: Suggestion;
   onSelect?: (s: Suggestion) => void;
-  cardRef?: React.Ref<HTMLElement>;
 }) {
   const cat = getCategory(s.category);
   const label =
@@ -74,7 +62,6 @@ function ActivityCard({
       : cat.label.replace(/^(Play a |Grab a |Do something )/, "");
   return (
     <article
-      ref={cardRef}
       onClick={() => onSelect?.(s)}
       className="relative h-36 cursor-pointer overflow-hidden rounded-xl bg-cover bg-center ring-2 ring-transparent transition hover:ring-[#FF4275]"
       style={{ backgroundImage: `url(${s.imageUrl})` }}
