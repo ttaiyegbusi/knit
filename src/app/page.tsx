@@ -23,8 +23,10 @@ export default function Page() {
   const attachments = useAttachments();
   const [activeEvent, setActiveEvent] = useState<Suggestion | null>(null);
   const [selected, setSelected] = useState<Suggestion | null>(null);
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
 
-  function openSuggestion(s: Suggestion) {
+  function openSuggestion(s: Suggestion, rect: DOMRect | null) {
+    setAnchorRect(rect);
     setSelected(s);
   }
   const [drawer, setDrawer] = useState<"history" | "attachments" | null>(null);
@@ -201,9 +203,12 @@ export default function Page() {
             className="fixed inset-0 z-40"
             onClick={() => setSelected(null)}
           />
-          {/* Fixed position: right side, vertically centered — every card
-              opens the popover at this exact spot. */}
-          <div className="fixed right-8 top-1/2 z-50 -translate-y-1/2 animate-rise">
+          {/* Anchored to the FOURTH card's position (top row), to its right —
+              every card opens the popover at this same spot. */}
+          <div
+            className="fixed z-50 animate-rise"
+            style={fourthCardPosition(anchorRect)}
+          >
             <SuggestionModal
               suggestion={selected}
               onClose={() => setSelected(null)}
@@ -217,6 +222,15 @@ export default function Page() {
       )}
     </AppShell>
   );
+}
+
+/** Pins the popover just to the right of the fourth (top-row) card. */
+function fourthCardPosition(rect: DOMRect | null): React.CSSProperties {
+  const GAP = 16;
+  if (typeof window === "undefined" || !rect) {
+    return { right: 32, top: 120 };
+  }
+  return { left: rect.right + GAP, top: rect.top };
 }
 
 function MenuItem({
