@@ -14,7 +14,7 @@ import { getCategory } from "@/lib/categories";
 export function ActivitiesNearYou({
   onSelect,
 }: {
-  onSelect?: (s: Suggestion, rect: DOMRect) => void;
+  onSelect?: (s: Suggestion) => void;
 }) {
   const [items, setItems] = useState<Suggestion[]>([]);
 
@@ -53,7 +53,7 @@ function ActivityCard({
   onSelect,
 }: {
   suggestion: Suggestion;
-  onSelect?: (s: Suggestion, rect: DOMRect) => void;
+  onSelect?: (s: Suggestion) => void;
 }) {
   const cat = getCategory(s.category);
   const label =
@@ -62,9 +62,7 @@ function ActivityCard({
       : cat.label.replace(/^(Play a |Grab a |Do something )/, "");
   return (
     <article
-      onClick={(e) =>
-        onSelect?.(s, (e.currentTarget as HTMLElement).getBoundingClientRect())
-      }
+      onClick={() => onSelect?.(s)}
       className="relative h-36 cursor-pointer overflow-hidden rounded-xl bg-cover bg-center ring-2 ring-transparent transition hover:ring-[#FF4275]"
       style={{ backgroundImage: `url(${s.imageUrl})` }}
     >

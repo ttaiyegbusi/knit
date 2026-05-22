@@ -23,10 +23,8 @@ export default function Page() {
   const attachments = useAttachments();
   const [activeEvent, setActiveEvent] = useState<Suggestion | null>(null);
   const [selected, setSelected] = useState<Suggestion | null>(null);
-  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
 
-  function openSuggestion(s: Suggestion, rect: DOMRect) {
-    setAnchorRect(rect);
+  function openSuggestion(s: Suggestion) {
     setSelected(s);
   }
   const [drawer, setDrawer] = useState<"history" | "attachments" | null>(null);
@@ -203,10 +201,9 @@ export default function Page() {
             className="fixed inset-0 z-40"
             onClick={() => setSelected(null)}
           />
-          <div
-            className="fixed z-50 animate-rise"
-            style={popoverPosition(anchorRect)}
-          >
+          {/* Fixed position: right side, vertically centered — every card
+              opens the popover at this exact spot. */}
+          <div className="fixed right-8 top-1/2 z-50 -translate-y-1/2 animate-rise">
             <SuggestionModal
               suggestion={selected}
               onClose={() => setSelected(null)}
@@ -220,34 +217,6 @@ export default function Page() {
       )}
     </AppShell>
   );
-}
-
-/**
- * Places the popover right beside the clicked card. Prefers the right of the
- * card; flips to the left when it would overflow, and clamps vertically so it
- * never runs off-screen.
- */
-function popoverPosition(rect: DOMRect | null): React.CSSProperties {
-  const W = 360; // popover width
-  const H = 440; // approximate popover height for clamping
-  const GAP = 12;
-  if (typeof window === "undefined" || !rect) {
-    return { bottom: 112, right: 32 };
-  }
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  // Horizontal: prefer right of the card, flip left if it would overflow.
-  let left = rect.right + GAP;
-  if (left + W > vw - 8) left = rect.left - GAP - W;
-  if (left < 8) left = 8; // last-resort clamp
-
-  // Vertical: align near the card's top, clamp within the viewport.
-  let top = rect.top;
-  if (top + H > vh - 8) top = vh - 8 - H;
-  if (top < 8) top = 8;
-
-  return { left, top };
 }
 
 function MenuItem({
