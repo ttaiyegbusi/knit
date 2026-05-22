@@ -8,6 +8,7 @@ import { Conversation } from "@/components/Conversation";
 import { ActivitiesNearYou } from "@/components/ActivitiesNearYou";
 import { ChatInput } from "@/components/ChatInput";
 import { EventPage } from "@/components/EventPage";
+import { WorkspaceScreen } from "@/components/WorkspaceScreen";
 import { SuggestionModal } from "@/components/SuggestionModal";
 import { SuggestionHistory } from "@/components/SuggestionHistory";
 import { Attachments } from "@/components/Attachments";
@@ -21,6 +22,7 @@ import { SURPRISE_ME, type Suggestion } from "@/lib/types";
 export default function Page() {
   const w = useWizard();
   const attachments = useAttachments();
+  const [workspaceOpen, setWorkspaceOpen] = useState(false);
   const [eventDraft, setEventDraft] = useState<Suggestion | null>(null);
   const [publishedPill, setPublishedPill] = useState(false);
 
@@ -69,8 +71,14 @@ export default function Page() {
   const isLanding = w.phase === "category";
   const inThread = !isLanding; // refinement, location, results all render the thread
 
+  // Separate full-screen workspace + event details view (opened from a rail tile).
+  if (workspaceOpen) {
+    return <WorkspaceScreen onBack={() => setWorkspaceOpen(false)} />;
+  }
+
   return (
     <AppShell
+      onOpenWorkspace={() => setWorkspaceOpen(true)}
       aside={
         <div
           className="h-full shrink-0 overflow-hidden transition-[width] duration-[360ms] ease-[cubic-bezier(0.32,0.72,0,1)]"

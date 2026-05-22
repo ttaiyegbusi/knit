@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, User, Sparkles, Settings, Search, Users, Bell } from "lucide-react";
+import Image from "next/image";
 import { Logo } from "./Logo";
 
 /**
@@ -17,9 +18,11 @@ import { Logo } from "./Logo";
 export function AppShell({
   children,
   aside,
+  onOpenWorkspace,
 }: {
   children: React.ReactNode;
   aside?: React.ReactNode;
+  onOpenWorkspace?: () => void;
 }) {
   return (
     <>
@@ -41,6 +44,25 @@ export function AppShell({
           >
             <Plus className="h-5 w-5" />
           </button>
+
+          {/* Workspace tiles — open the workspace / event details screen */}
+          <div className="mb-2 flex flex-col items-center gap-2">
+            <button
+              aria-label="Open workspace"
+              onClick={onOpenWorkspace}
+              className="overflow-hidden rounded-[10px] transition hover:opacity-90"
+            >
+              <Image src="/tile-pink.svg" alt="" width={38} height={38} unoptimized />
+            </button>
+            <button
+              aria-label="Open workspace"
+              onClick={onOpenWorkspace}
+              className="overflow-hidden rounded-[10px] transition hover:opacity-90"
+            >
+              <Image src="/tile-orange.svg" alt="" width={38} height={38} unoptimized />
+            </button>
+          </div>
+          <div className="mb-3 h-px w-9 bg-line" />
 
           {/* Icon tiles */}
           <nav className="flex flex-col items-center gap-1.5">
