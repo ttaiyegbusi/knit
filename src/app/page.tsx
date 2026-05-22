@@ -54,7 +54,30 @@ export default function Page() {
   const inThread = !isLanding; // refinement, location, results all render the thread
 
   return (
-    <AppShell>
+    <AppShell
+      aside={
+        <div
+          className="h-full shrink-0 overflow-hidden transition-[width] duration-[360ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
+          style={{ width: drawer ? 340 : 0 }}
+        >
+          <div
+            className={`h-full w-[340px] overflow-hidden rounded-[1.25rem] bg-surface shadow-soft transition-opacity duration-300 ${
+              drawer ? "opacity-100 delay-100" : "opacity-0"
+            }`}
+          >
+            {drawerContent === "history" && (
+              <SuggestionHistory onClose={() => setDrawer(null)} />
+            )}
+            {drawerContent === "attachments" && (
+              <Attachments
+                items={attachments.items}
+                onClose={() => setDrawer(null)}
+              />
+            )}
+          </div>
+        </div>
+      }
+    >
       {isLanding ? (
         /* ── STATE 1 · Landing — greeting, vibe cards, chat box, activities ── */
         <div className="flex h-full flex-col">
@@ -85,11 +108,10 @@ export default function Page() {
           </div>
         </div>
       ) : (
-        /* ── STATE 2 · Conversation — header + transcript + composer, with an
-             optional right-side drawer (history / attachments) ───────────── */
-        <div className="flex h-full gap-4">
+        /* ── STATE 2 · Conversation — header + transcript + composer ─────── */
+        <div className="flex h-full flex-col">
           <div className="flex h-full min-w-0 flex-1 flex-col">
-            {/* Header: title (left) · Share + menu (right) */}
+            {/* Header: title (left) · menu (right) */}
             <div className="relative flex items-center justify-between pb-3">
               <button className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold text-ink transition hover:bg-ink/5">
                 {conversationTitle(w)}
@@ -154,29 +176,6 @@ export default function Page() {
             {/* Composer pinned at the bottom */}
             <div className="mx-auto w-[600px] max-w-full pt-4">
               <ChatInput onSubmit={handleChat} onAttach={attachments.add} />
-            </div>
-          </div>
-
-          {/* Right-side drawer — always mounted; animates its width so the
-              main container reflows in step. Apple-style easing, ~360ms. */}
-          <div
-            className="h-full shrink-0 overflow-hidden transition-[width] duration-[360ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
-            style={{ width: drawer ? 336 : 0 }}
-          >
-            <div
-              className={`h-full w-[320px] transition-opacity duration-300 ${
-                drawer ? "opacity-100 delay-100" : "opacity-0"
-              }`}
-            >
-              {drawerContent === "history" && (
-                <SuggestionHistory onClose={() => setDrawer(null)} />
-              )}
-              {drawerContent === "attachments" && (
-                <Attachments
-                  items={attachments.items}
-                  onClose={() => setDrawer(null)}
-                />
-              )}
             </div>
           </div>
         </div>

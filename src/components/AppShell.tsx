@@ -14,7 +14,13 @@ import { Logo } from "./Logo";
  *  - Both columns are rounded and detached from every screen edge; the
  *    background shows through the gutters.
  */
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  aside,
+}: {
+  children: React.ReactNode;
+  aside?: React.ReactNode;
+}) {
   return (
     <>
       <div className="app-bg" />
@@ -72,11 +78,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
 
-          {/* Content surface frame — scrolls internally. */}
-          <div className="relative min-h-0 flex-1 overflow-hidden rounded-[1.25rem] bg-surface shadow-soft">
-            <main className="h-full overflow-y-auto px-5 py-7 sm:px-8 sm:py-9">
-              {children}
-            </main>
+          {/* Main content surface + optional sibling drawer container, side
+              by side as independent floating surfaces with a gutter between. */}
+          <div className="flex min-h-0 flex-1 gap-3 sm:gap-4">
+            <div className="relative min-w-0 flex-1 overflow-hidden rounded-[1.25rem] bg-surface shadow-soft">
+              <main className="h-full overflow-y-auto px-5 pt-5 pb-7 sm:px-8 sm:pb-9">
+                {children}
+              </main>
+            </div>
+            {aside}
           </div>
         </div>
       </div>

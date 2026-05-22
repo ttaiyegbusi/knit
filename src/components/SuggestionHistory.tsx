@@ -69,7 +69,7 @@ export function Drawer({
   children: React.ReactNode;
 }) {
   return (
-    <aside className="flex h-full w-[320px] shrink-0 flex-col rounded-[1.25rem] bg-surface shadow-soft">
+    <aside className="flex h-full w-full flex-col">
       <div className="flex items-center justify-between px-5 py-4">
         <h2 className="text-lg font-semibold text-ink">{title}</h2>
         <button
