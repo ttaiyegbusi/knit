@@ -114,7 +114,7 @@ export default function Page() {
       ) : (
         /* ── STATE 2 · Conversation — header + transcript + composer ─────── */
         <div className="flex h-full flex-col">
-          <div className="flex h-full min-w-0 flex-1 flex-col">
+          <div className="relative flex h-full min-w-0 flex-1 flex-col">
             {/* Header: title (left) · menu (right) */}
             <div className="relative flex items-center justify-between pb-3">
               <button className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold text-ink transition hover:bg-ink/5">
@@ -181,6 +181,32 @@ export default function Page() {
             <div className="mx-auto w-[600px] max-w-full pt-4">
               <ChatInput onSubmit={handleChat} onAttach={attachments.add} />
             </div>
+
+            {/* Suggestion detail — a floating popover anchored to the content
+                column, just right of the 600px thread. Absolute within this
+                non-scrolling column, so it stays put as the thread scrolls.
+                No dimming backdrop; subtle elevation. */}
+            {selected && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setSelected(null)}
+                />
+                <div
+                  className="absolute top-16 z-50 animate-rise"
+                  style={{ left: "calc(50% + 320px)" }}
+                >
+                  <SuggestionModal
+                    suggestion={selected}
+                    onClose={() => setSelected(null)}
+                    onCreateEvent={(s) => {
+                      setSelected(null);
+                      setActiveEvent(s);
+                    }}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -192,29 +218,6 @@ export default function Page() {
         />
       )}
 
-      {/* Suggestion detail — a floating popover anchored bottom-right over the
-          activities area. No dimming backdrop; just a subtle elevation shadow.
-          An invisible catcher closes it on outside-click. */}
-      {selected && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setSelected(null)}
-          />
-          {/* Pinned to one constant screen position (top-right area),
-              independent of scroll and of which card was clicked. */}
-          <div className="fixed right-10 top-44 z-50 animate-rise">
-            <SuggestionModal
-              suggestion={selected}
-              onClose={() => setSelected(null)}
-              onCreateEvent={(s) => {
-                setSelected(null);
-                setActiveEvent(s);
-              }}
-            />
-          </div>
-        </>
-      )}
     </AppShell>
   );
 }
