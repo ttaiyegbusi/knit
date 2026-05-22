@@ -1,38 +1,32 @@
 "use client";
 
-import { Shuffle } from "lucide-react";
+import { useState } from "react";
+import { Shuffle, MapPin, Loader2, Settings } from "lucide-react";
 import { KnitBubble, KnitText, UserBubble } from "./ChatBubbles";
 import { VibeIcon } from "./VibeIcon";
+import { ActivitiesNearYou } from "./ActivitiesNearYou";
 import { CATEGORIES, getCategory } from "@/lib/categories";
 import { SURPRISE_ME } from "@/lib/types";
-import type { CategoryId } from "@/lib/types";
+import type { CategoryId, LocationAnswer, Suggestion } from "@/lib/types";
 import type { useWizard } from "@/lib/useWizard";
 
-/**
- * Presentation-only: renders the EXISTING structured wizard as a chat
- * transcript. Each answered step shows Knit's question (left) + the user's
- * answer (right pink bubble). The current step shows Knit's question with the
- * interactive options beneath it. The wizard logic is untouched — this just
- * changes how it looks.
- */
 export function Conversation({
   w,
   onPickCategory,
   onConfirmRefinement,
   onSkipRefinement,
+  onSelectSuggestion,
 }: {
   w: ReturnType<typeof useWizard>;
   onPickCategory: (id: CategoryId) => void;
   onConfirmRefinement: (r: string[]) => void;
   onSkipRefinement: () => void;
+  onSelectSuggestion: (s: Suggestion) => void;
 }) {
   const { query, phase } = w;
 
   return (
     <div className="mx-auto flex w-[600px] max-w-full flex-col gap-6">
-      {/* ── Step 1: category ─────────────────────────────────────────────
-          Knit asks "Pick a vibe to get started". Either the user has answered
-          (show their pick on the right) or it's the active step (show chips). */}
       <KnitBubble>
         <KnitText>Pick a vibe to get started</KnitText>
         {phase === "category" && (
@@ -53,7 +47,6 @@ export function Conversation({
 
       {query.category && <UserBubble>{getCategory(query.category).label}</UserBubble>}
 
-      {/* ── Step 2: refinement ───────────────────────────────────────────── */}
       {query.category && (
         <RefinementTurn
           category={query.category}
@@ -64,8 +57,38 @@ export function Conversation({
         />
       )}
 
-      {/* ── Step 3: location is handled by the existing StepLocation, shown
-           as a Knit turn by the page when phase === "location". ──────────── */}
+      {query.refinement !== undefined && (
+        <LocationTurn
+          isActive={phase === "location"}
+          answer={query.location}
+          onConfirm={w.setLocation}
+        />
+      )}
+
+      {phase === "results" && (
+        <KnitBubble>
+          <div className="rounded-2xl rounded-tl-md bg-surface-muted px-4 py-3 text-sm font-medium text-ink">
+            <p className="leading-relaxed">
+              Okay, based on your preference and location; here are some
+              suggestions
+            </p>
+            <button
+              onClick={() => w.changeLocation()}
+              className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#FF4275] hover:underline"
+            >
+              <Settings className="h-3.5 w-3.5" />
+              Change my location
+            </button>
+          </div>
+          <div className="w-full pt-1">
+            {w.isLoading ? (
+              <ResultsLoading />
+            ) : (
+              <ActivitiesNearYou onSelect={onSelectSuggestion} />
+            )}
+          </div>
+        </KnitBubble>
+      )}
     </div>
   );
 }
@@ -84,7 +107,6 @@ function RefinementTurn({
   onSkip: () => void;
 }) {
   const cat = getCategory(category);
-
   return (
     <>
       <KnitBubble>
@@ -122,5 +144,84 @@ function RefinementTurn({
         </UserBubble>
       )}
     </>
+  );
+}
+
+function LocationTurn({
+  isActive,
+  answer,
+  onConfirm,
+}: {
+  isActive: boolean;
+  answer: LocationAnswer | undefined;
+  onConfirm: (loc: LocationAnswer) => void;
+}) {
+  const [manual, setManual] = useState("");
+  const [denied, setDenied] = useState(false);
+
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      setDenied(true);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        onConfirm({
+          source: "auto",
+          label: "your current location",
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }),
+      () => setDenied(true),
+      { timeout: 8000 },
+    );
+  }
+
+  return (
+    <>
+      <KnitBubble>
+        <KnitText>Where are you? We&apos;ll find things near you.</KnitText>
+        {isActive && (
+          <div className="flex flex-col gap-2">
+            {!denied ? (
+              <button
+                onClick={useMyLocation}
+                className="inline-flex w-fit items-center gap-2 rounded-lg bg-[#FF4275] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                <MapPin className="h-4 w-4" />
+                Use my location
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 rounded-lg bg-surface-muted px-3 py-1.5">
+                <MapPin className="h-4 w-4 text-ink-faint" />
+                <input
+                  autoFocus
+                  value={manual}
+                  onChange={(e) => setManual(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" &&
+                    manual.trim() &&
+                    onConfirm({ source: "manual", label: manual.trim() })
+                  }
+                  placeholder="Enter a city or area"
+                  className="bg-transparent py-1 text-sm text-ink outline-none placeholder:text-ink-faint"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </KnitBubble>
+
+      {answer !== undefined && <UserBubble>{answer.label}</UserBubble>}
+    </>
+  );
+}
+
+function ResultsLoading() {
+  return (
+    <p className="flex items-center gap-2 py-2 text-sm text-ink-soft">
+      <Loader2 className="h-4 w-4 animate-spin" />
+      Curating a few good options…
+    </p>
   );
 }

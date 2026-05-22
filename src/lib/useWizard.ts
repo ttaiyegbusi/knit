@@ -32,8 +32,7 @@ export interface WizardState {
 function derivePhase(q: SuggestionQuery): Phase {
   if (q.category === undefined) return "category";
   if (q.refinement === undefined) return "refinement";
-  // Location is auto-assumed (not asked as a step); once refinement is
-  // answered we go straight to results. Users adjust via "Change location".
+  if (q.location === undefined) return "location"; // step 3: location permission
   return "results";
 }
 
@@ -65,28 +64,17 @@ export function useWizard() {
     setQuery({ category });
   }, []);
 
-  const setRefinement = useCallback(
-    (refinement: string[]) => {
-      setQuery((q) => {
-        const next = { ...q, refinement, location: DEFAULT_LOCATION };
-        void runEngine(next);
-        return next;
-      });
-    },
-    [runEngine],
-  );
+  const setRefinement = useCallback((refinement: string[]) => {
+    // Advances to the location step (engine runs once location is set).
+    setQuery((q) => ({ ...q, refinement }));
+  }, []);
 
   const skipRefinement = useCallback(() => {
-    setQuery((q) => {
-      const next = {
-        ...q,
-        refinement: SURPRISE_ME as typeof SURPRISE_ME,
-        location: DEFAULT_LOCATION,
-      };
-      void runEngine(next);
-      return next;
-    });
-  }, [runEngine]);
+    setQuery((q) => ({
+      ...q,
+      refinement: SURPRISE_ME as typeof SURPRISE_ME,
+    }));
+  }, []);
 
   const setLocation = useCallback(
     (location: LocationAnswer) => {

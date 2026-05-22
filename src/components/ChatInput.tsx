@@ -1,24 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Plus, ArrowUp } from "lucide-react";
 import { Logo } from "./Logo";
 
 /**
- * Chat block — matched to chat.png:
- *  - An OUTER container (rounded, subtle fill) that holds a header row
- *    ("Start a New Chat" with the brand mark) at the top…
- *  - …and a NESTED inner container below it: the white input surface, 90px
- *    tall, holding the "+" affordance, the placeholder, and the circular
- *    send button pinned bottom-right.
- *  Padding is intentionally non-conventional and set explicitly.
+ * Chat block — outer container with the "Start a New Chat" header, and a
+ * nested 90px input row holding the "+", the text, and the send button.
+ * The "+" opens a file picker when onAttach is provided.
  */
 export function ChatInput({
   onSubmit,
+  onAttach,
 }: {
   onSubmit: (text: string) => void;
+  onAttach?: (files: FileList | null) => void;
 }) {
   const [text, setText] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function submit() {
     const t = text.trim();
@@ -39,9 +38,17 @@ export function ChatInput({
       {/* NESTED inner container — borderless, fixed 90px height. The "+",
           the text, and the send button all sit together on one bottom row. */}
       <div className="flex h-[90px] items-end gap-2 rounded-xl bg-surface px-3 py-3">
-        {/* "+" affordance */}
+        {/* "+" affordance — opens the file picker */}
+        <input
+          ref={fileRef}
+          type="file"
+          multiple
+          hidden
+          onChange={(e) => onAttach?.(e.target.files)}
+        />
         <button
-          aria-label="Add"
+          aria-label="Add attachment"
+          onClick={() => fileRef.current?.click()}
           className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-ink-faint transition hover:bg-ink/5"
         >
           <Plus className="h-4 w-4" />
