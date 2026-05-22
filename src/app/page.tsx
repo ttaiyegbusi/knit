@@ -1,158 +1,309 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2, Pencil } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, MoreVertical, Check } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { StepCategory } from "@/components/StepCategory";
-import { StepRefinement } from "@/components/StepRefinement";
-import { StepLocation } from "@/components/StepLocation";
-import { Results } from "@/components/Results";
+import { Conversation } from "@/components/Conversation";
+import { ActivitiesNearYou } from "@/components/ActivitiesNearYou";
 import { ChatInput } from "@/components/ChatInput";
-import { RestaurantsNearYou } from "@/components/RestaurantsNearYou";
-import { EventSheet } from "@/components/EventSheet";
+import { EventPage } from "@/components/EventPage";
+import { WorkspaceScreen } from "@/components/WorkspaceScreen";
+import { SuggestionModal } from "@/components/SuggestionModal";
+import { SuggestionHistory } from "@/components/SuggestionHistory";
+import { Attachments } from "@/components/Attachments";
+import { Logo } from "@/components/Logo";
 import { useWizard } from "@/lib/useWizard";
+import { useAttachments } from "@/lib/useAttachments";
 import { parseFreeText } from "@/lib/parser";
 import { getCategory } from "@/lib/categories";
 import { SURPRISE_ME, type Suggestion } from "@/lib/types";
 
 export default function Page() {
   const w = useWizard();
-  const [activeEvent, setActiveEvent] = useState<Suggestion | null>(null);
+  const attachments = useAttachments();
+  const [workspaceOpen, setWorkspaceOpen] = useState(false);
+  const [eventDraft, setEventDraft] = useState<Suggestion | null>(null);
+  const [publishedPill, setPublishedPill] = useState(false);
+
+  function openEvent(s: Suggestion) {
+    setEventDraft(s);
+  }
+  function publishEvent() {
+    setEventDraft(null);
+    setPublishedPill(true);
+    window.setTimeout(() => setPublishedPill(false), 4000);
+  }
+  const [selected, setSelected] = useState<Suggestion | null>(null);
+  const [gridRect, setGridRect] = useState<DOMRect | null>(null);
+
+  function openSuggestion(s: Suggestion, rect: DOMRect | null) {
+    setGridRect(rect);
+    setSelected(s);
+  }
+  const [drawer, setDrawer] = useState<"history" | "attachments" | null>(null);
+  const [drawerContent, setDrawerContent] = useState<
+    "history" | "attachments" | null
+  >(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Keep the drawer's content mounted while it animates closed: adopt the new
+  // value on open, retain the old value through the collapse, then unmount.
+  useEffect(() => {
+    if (drawer) {
+      setDrawerContent(drawer);
+      return;
+    }
+    const t = window.setTimeout(() => setDrawerContent(null), 380);
+    return () => window.clearTimeout(t);
+  }, [drawer]);
 
   function handleChat(text: string) {
     const { query } = parseFreeText(text);
     w.applyParsedQuery(query);
   }
 
-  const showGreeting = w.phase === "category";
+  function handleShare() {
+    const summary = `Knit suggestion: ${conversationTitle(w)}`;
+    void navigator.clipboard?.writeText(summary);
+  }
+
+  const isLanding = w.phase === "category";
+  const inThread = !isLanding; // refinement, location, results all render the thread
+
+  // Separate full-screen workspace + event details view (opened from a rail tile).
+  if (workspaceOpen) {
+    return <WorkspaceScreen onBack={() => setWorkspaceOpen(false)} />;
+  }
 
   return (
-    <AppShell>
-      <div className="mx-auto max-w-4xl pb-16">
-        {/* Greeting — only on the first step, like the screenshot */}
-        {showGreeting && (
-          <div className="mb-10 flex flex-col items-center text-center">
-            <div className="knit-mark mb-3 h-12 w-12" />
-            <p className="text-sm text-ink-soft">Hi, there</p>
-            <h1 className="font-display text-3xl text-ink">
-              What do you feel like doing?
-            </h1>
-          </div>
-        )}
-
-        {/* Breadcrumb of answered steps (lets you go back and edit) */}
-        {!showGreeting && <AnswerTrail w={w} />}
-
-        {/* The active step */}
-        <div className="mb-8">
-          {w.phase === "category" && <StepCategory onPick={w.setCategory} />}
-
-          {w.phase === "refinement" && w.query.category && (
-            <StepRefinement
-              category={w.query.category}
-              onConfirm={w.setRefinement}
-              onSkip={w.skipRefinement}
-            />
-          )}
-
-          {w.phase === "location" && <StepLocation onConfirm={w.setLocation} />}
-
-          {w.phase === "results" && (
-            <>
-              {w.isLoading ? (
-                <LoadingResults />
-              ) : (
-                <Results
-                  suggestions={w.suggestions}
-                  onCreateEvent={setActiveEvent}
-                />
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Chat shortcut — present on the first two steps as a fast path */}
-        {(w.phase === "category" || w.phase === "refinement") && (
-          <ChatInput onSubmit={handleChat} />
-        )}
-
-        {/* Restaurants Near You — a standing discovery feed, landing only */}
-        {w.phase === "category" && (
-          <div className="mt-8">
-            <RestaurantsNearYou />
-          </div>
-        )}
-
-        {/* Restart */}
-        {w.phase === "results" && (
-          <button
-            onClick={w.reset}
-            className="mx-auto mt-4 block text-sm font-medium text-ink-soft hover:text-ink"
+    <AppShell
+      onOpenWorkspace={() => setWorkspaceOpen(true)}
+      aside={
+        <div
+          className="h-full shrink-0 overflow-hidden transition-[width] duration-[360ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
+          style={{ width: drawer ? 340 : 0 }}
+        >
+          <div
+            className={`h-full w-[340px] overflow-hidden rounded-[1.25rem] bg-surface shadow-soft transition-opacity duration-300 ${
+              drawer ? "opacity-100 delay-100" : "opacity-0"
+            }`}
           >
-            Start over
-          </button>
-        )}
-      </div>
-
-      {activeEvent && (
-        <EventSheet
-          suggestion={activeEvent}
-          onClose={() => setActiveEvent(null)}
+            {drawerContent === "history" && (
+              <SuggestionHistory onClose={() => setDrawer(null)} />
+            )}
+            {drawerContent === "attachments" && (
+              <Attachments
+                items={attachments.items}
+                onClose={() => setDrawer(null)}
+              />
+            )}
+          </div>
+        </div>
+      }
+    >
+      {eventDraft ? (
+        /* ── Full-page event creation (takes over the surface) ──────────── */
+        <EventPage
+          suggestion={eventDraft}
+          onBack={() => setEventDraft(null)}
+          onPublish={publishEvent}
         />
+      ) : isLanding ? (
+        /* ── STATE 1 · Landing — greeting, vibe cards, chat box, activities ── */
+        <div className="flex h-full flex-col">
+          <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="mx-auto flex min-h-full w-[600px] max-w-full flex-col pb-4">
+              <div>
+                <div className="mb-10 flex flex-col items-center text-center">
+                  <div className="mb-3">
+                    <Logo size={48} />
+                  </div>
+                  <p className="text-sm text-ink-soft">Hi, there</p>
+                  <h1 className="font-display text-3xl text-ink">
+                    What do you feel like doing?
+                  </h1>
+                </div>
+
+                <div className="mb-8">
+                  <StepCategory onPick={w.setCategory} />
+                </div>
+
+                <ChatInput onSubmit={handleChat} />
+              </div>
+
+              <div className="mt-auto pt-16">
+                <ActivitiesNearYou onSelect={openSuggestion} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ── STATE 2 · Conversation — header + transcript + composer ─────── */
+        <div className="flex h-full flex-col">
+          <div className="relative flex h-full min-w-0 flex-1 flex-col">
+            {/* Header: title (left) · menu (right) */}
+            <div className="relative flex items-center justify-between pb-3">
+              <button className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold text-ink transition hover:bg-ink/5">
+                {conversationTitle(w)}
+                <ChevronDown className="h-4 w-4 text-ink-soft" />
+              </button>
+
+              <div className="flex items-center gap-1">
+                <div className="relative">
+                  <button
+                    onClick={() => setMenuOpen((v) => !v)}
+                    aria-label="More"
+                    className="grid h-8 w-8 place-items-center rounded-full text-ink-soft transition hover:bg-ink/5"
+                  >
+                    <MoreVertical className="h-5 w-5" />
+                  </button>
+                  {menuOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setMenuOpen(false)}
+                      />
+                      <div className="absolute right-0 top-10 z-20 w-48 overflow-hidden rounded-xl bg-surface py-1 shadow-soft ring-1 ring-line">
+                        <MenuItem
+                          label="Share"
+                          onClick={() => {
+                            handleShare();
+                            setMenuOpen(false);
+                          }}
+                        />
+                        <MenuItem
+                          label="Suggestion History"
+                          onClick={() => {
+                            setDrawer("history");
+                            setMenuOpen(false);
+                          }}
+                        />
+                        <MenuItem
+                          label="Attachments"
+                          onClick={() => {
+                            setDrawer("attachments");
+                            setMenuOpen(false);
+                          }}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Scrollable thread */}
+            <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <Conversation
+                w={w}
+                onPickCategory={w.setCategory}
+                onConfirmRefinement={w.setRefinement}
+                onSkipRefinement={w.skipRefinement}
+                onSelectSuggestion={openSuggestion}
+              />
+            </div>
+
+            {/* Composer pinned at the bottom */}
+            <div className="mx-auto w-[600px] max-w-full pt-4">
+              <ChatInput onSubmit={handleChat} onAttach={attachments.add} />
+            </div>
+
+            {/* Suggestion detail — a floating popover anchored snugly to the
+                RIGHT EDGE of the activities grid (measured), with a small gap.
+                Fixed positioning + the measured edge keeps it tight against the
+                cards regardless of window width. No dimming backdrop. */}
+            {selected && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setSelected(null)}
+                />
+                <div
+                  className="fixed z-50 animate-rise"
+                  style={popoverPosition(gridRect)}
+                >
+                  <SuggestionModal
+                    suggestion={selected}
+                    onClose={() => setSelected(null)}
+                    onCreateEvent={(s) => {
+                      setSelected(null);
+                      openEvent(s);
+                    }}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       )}
+
+      {/* Publish confirmation pill — top center, auto-dismisses. */}
+      {publishedPill && (
+        <div className="fixed left-1/2 top-3 z-[60] -translate-x-1/2 animate-rise">
+          <div className="flex items-center gap-2 rounded-full bg-[#FF4275] py-2 pl-2 pr-4 text-sm font-medium text-white shadow-soft">
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-white/25">
+              <Check className="h-3.5 w-3.5" />
+            </span>
+            Event published to your Knit
+            <button className="ml-1 font-semibold underline underline-offset-2">
+              View
+            </button>
+          </div>
+        </div>
+      )}
+
     </AppShell>
   );
 }
 
-function AnswerTrail({ w }: { w: ReturnType<typeof useWizard> }) {
-  const { query } = w;
-  const chips: { label: string; step: "category" | "refinement" }[] = [];
-
-  if (query.category) {
-    chips.push({ label: getCategory(query.category).label, step: "category" });
+/**
+ * Anchors the popover snugly to the activities grid's right edge (measured),
+ * with a small gap. Vertically aligns near the grid top and clamps so the card
+ * never runs off-screen. Falls back to a sensible spot before measurement.
+ */
+function popoverPosition(grid: DOMRect | null): React.CSSProperties {
+  const GAP = 16;
+  const POPOVER_H = 460; // approx height for vertical clamping
+  if (typeof window === "undefined" || !grid) {
+    return { right: 40, top: 160 };
   }
-  if (query.refinement) {
-    const text =
-      query.refinement === SURPRISE_ME
-        ? "Surprise me"
-        : (query.refinement as string[]).join(", ");
-    chips.push({ label: text, step: "refinement" });
-  }
+  const left = grid.right + GAP;
+  let top = grid.top;
+  const vh = window.innerHeight;
+  if (top + POPOVER_H > vh - 12) top = Math.max(12, vh - 12 - POPOVER_H);
+  return { left, top };
+}
 
-  if (chips.length === 0) return null;
-
+function MenuItem({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2">
-      {chips.map((c) => (
-        <button
-          key={c.step}
-          onClick={() => w.editStep(c.step)}
-          className="group inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-ink/5"
-        >
-          {c.label}
-          <Pencil className="h-3 w-3 text-ink-faint opacity-0 transition group-hover:opacity-100" />
-        </button>
-      ))}
-    </div>
+    <button
+      onClick={onClick}
+      className="block w-full px-4 py-2.5 text-left text-sm text-ink transition hover:bg-surface-muted"
+    >
+      {label}
+    </button>
   );
 }
 
-function LoadingResults() {
-  return (
-    <div className="space-y-3">
-      <div className="relative h-44 overflow-hidden rounded-2xl bg-surface-muted shimmer" />
-      <div className="grid gap-3 sm:grid-cols-2">
-        {[0, 1].map((i) => (
-          <div
-            key={i}
-            className="relative h-48 overflow-hidden rounded-2xl bg-surface-muted shimmer"
-          />
-        ))}
-      </div>
-      <p className="flex items-center justify-center gap-2 pt-2 text-sm text-ink-soft">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        Curating a few good options…
-      </p>
-    </div>
-  );
+/** Derives a conversation title from the answers (stands in for AI naming). */
+function conversationTitle(w: ReturnType<typeof useWizard>): string {
+  const { query } = w;
+  if (!query.category) return "New Suggestion";
+  const cat = getCategory(query.category);
+  const refinement =
+    query.refinement && query.refinement !== SURPRISE_ME
+      ? (query.refinement as string[])[0]
+      : undefined;
+
+  if (query.category === "eat_out") {
+    return refinement ? `${refinement} Food Cuisine` : "Food Cuisine";
+  }
+  return refinement ? `${refinement} · ${cat.label}` : cat.label;
 }

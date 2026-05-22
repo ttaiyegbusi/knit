@@ -1,23 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Plus, ArrowUp } from "lucide-react";
+import { Logo } from "./Logo";
 
 /**
- * Chat block — matched to chat.png:
- *  - An OUTER container (rounded, subtle fill) that holds a header row
- *    ("Start a New Chat" with the brand mark) at the top…
- *  - …and a NESTED inner container below it: the white input surface, 90px
- *    tall, holding the "+" affordance, the placeholder, and the circular
- *    send button pinned bottom-right.
- *  Padding is intentionally non-conventional and set explicitly.
+ * Chat block — outer container with the "Start a New Chat" header, and a
+ * nested 90px input row holding the "+", the text, and the send button.
+ * The "+" opens a file picker when onAttach is provided.
  */
 export function ChatInput({
   onSubmit,
+  onAttach,
 }: {
   onSubmit: (text: string) => void;
+  onAttach?: (files: FileList | null) => void;
 }) {
   const [text, setText] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function submit() {
     const t = text.trim();
@@ -27,43 +27,54 @@ export function ChatInput({
   }
 
   return (
-    // OUTER container
-    <div className="rounded-2xl border border-line bg-surface-muted/60 p-3">
+    // OUTER container — 4px padding all round, no border
+    <div className="rounded-2xl bg-surface-muted/60 p-1">
       {/* Header row */}
-      <div className="mb-2.5 flex items-center gap-2 px-1 text-sm font-semibold text-ink">
-        <span className="knit-mark h-4 w-4" />
+      <div className="mb-1.5 flex items-center gap-2 px-2 pt-1.5 text-sm font-semibold text-ink">
+        <Logo size={16} />
         Start a New Chat
       </div>
 
-      {/* NESTED inner container — the input surface, fixed 90px height */}
-      <div className="relative h-[90px] rounded-xl border border-line bg-surface">
-        {/* "+" affordance, bottom-left */}
+      {/* NESTED inner container — borderless, fixed 90px height. The "+",
+          the text, and the send button all sit together on one bottom row. */}
+      <div className="flex h-[90px] items-end gap-2 rounded-xl bg-surface px-3 py-3">
+        {/* "+" affordance — opens the file picker */}
+        <input
+          ref={fileRef}
+          type="file"
+          multiple
+          hidden
+          onChange={(e) => onAttach?.(e.target.files)}
+        />
         <button
-          aria-label="Add"
-          className="absolute bottom-3 left-3 grid h-7 w-7 place-items-center rounded-lg text-ink-faint transition hover:bg-ink/5"
+          aria-label="Add attachment"
+          onClick={() => fileRef.current?.click()}
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-ink-faint transition hover:bg-ink/5"
         >
           <Plus className="h-4 w-4" />
         </button>
 
-        {/* Text input */}
-        <textarea
+        {/* Text input — single-line input centers its text on the same line
+            as the "+", unlike a textarea which top-anchors its content */}
+        <input
+          type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter") {
               e.preventDefault();
               submit();
             }
           }}
           placeholder="Type in here...."
-          className="absolute inset-x-11 top-3 bottom-3 resize-none bg-transparent text-sm text-ink outline-none placeholder:text-ink-faint"
+          className="h-7 flex-1 bg-transparent text-sm leading-7 text-ink outline-none placeholder:text-ink-faint"
         />
 
-        {/* Circular send button, bottom-right */}
+        {/* Circular send button */}
         <button
           onClick={submit}
           aria-label="Send"
-          className="absolute bottom-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-surface-muted text-ink-soft shadow-sm transition hover:bg-ink/5 disabled:opacity-40"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-muted text-ink-soft shadow-soft transition hover:bg-ink/5 disabled:opacity-40"
           disabled={!text.trim()}
         >
           <ArrowUp className="h-4 w-4" />

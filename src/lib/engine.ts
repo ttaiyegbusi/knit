@@ -234,4 +234,48 @@ export async function getSuggestions(
     .slice(0, 6);
 }
 
+/**
+ * The standing "Activities Near You" feed on the landing view. Unlike the
+ * wizard's tailored results, this is a broad mix across ALL categories — it's
+ * what's around the user right now, not an answer to their three questions.
+ * Wired to the same catalog so cards are real data; later this becomes a
+ * "nearby places" API call behind the same signature.
+ */
+/** Adds mock detail fields (description, address, gallery) for the modal. */
+function enrich(s: Suggestion): Suggestion {
+  const allImages = Object.values(IMG);
+  return {
+    ...s,
+    description:
+      s.description ??
+      `A well-loved ${s.subcategory.toLowerCase()} spot in ${s.proximity.area}, known for a great atmosphere and consistently good reviews from people nearby.`,
+    address:
+      s.address ??
+      `${10 + (parseInt(s.id.replace(/\D/g, "") || "1") % 80)} Bode Thomas St, ${s.proximity.area}, Lagos 100100, Lagos`,
+    gallery:
+      s.gallery ?? [s.imageUrl, ...allImages.filter((u) => u !== s.imageUrl).slice(0, 2)],
+  };
+}
+
+export async function getActivitiesNearYou(): Promise<Suggestion[]> {
+  await new Promise((r) => setTimeout(r, 400));
+
+  // Flatten every category into one pool, then pad so there are enough rows
+  // to scroll through.
+  const base: Suggestion[] = (
+    Object.keys(CATALOG) as CategoryId[]
+  ).flatMap((cat) =>
+    CATALOG[cat].map((s, i) => ({ ...s, id: `near-${cat}-${i}` })),
+  );
+
+  const out: Suggestion[] = [];
+  let n = 0;
+  while (out.length < 20) {
+    const s = base[n % base.length];
+    out.push(enrich({ ...s, id: `near-${n}` }));
+    n++;
+  }
+  return out;
+}
+
 export { SURPRISE_ME };

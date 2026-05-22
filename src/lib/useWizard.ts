@@ -32,9 +32,15 @@ export interface WizardState {
 function derivePhase(q: SuggestionQuery): Phase {
   if (q.category === undefined) return "category";
   if (q.refinement === undefined) return "refinement";
-  if (q.location === undefined) return "location";
+  if (q.location === undefined) return "location"; // step 3: location permission
   return "results";
 }
+
+/** Default auto-detected location stand-in (real geocoding slots in later). */
+const DEFAULT_LOCATION: LocationAnswer = {
+  source: "auto",
+  label: "your area",
+};
 
 export function useWizard() {
   const [query, setQuery] = useState<SuggestionQuery>({});
@@ -59,11 +65,15 @@ export function useWizard() {
   }, []);
 
   const setRefinement = useCallback((refinement: string[]) => {
+    // Advances to the location step (engine runs once location is set).
     setQuery((q) => ({ ...q, refinement }));
   }, []);
 
   const skipRefinement = useCallback(() => {
-    setQuery((q) => ({ ...q, refinement: SURPRISE_ME }));
+    setQuery((q) => ({
+      ...q,
+      refinement: SURPRISE_ME as typeof SURPRISE_ME,
+    }));
   }, []);
 
   const setLocation = useCallback(
@@ -109,6 +119,19 @@ export function useWizard() {
     });
   }, []);
 
+  // "Change location" from the results turn — re-runs the engine with a new
+  // location once the user provides one (wired to manual entry in the UI).
+  const changeLocation = useCallback(
+    (location?: LocationAnswer) => {
+      setQuery((q) => {
+        const next = { ...q, location: location ?? DEFAULT_LOCATION };
+        void runEngine(next);
+        return next;
+      });
+    },
+    [runEngine],
+  );
+
   return {
     query,
     phase,
@@ -118,6 +141,7 @@ export function useWizard() {
     setRefinement,
     skipRefinement,
     setLocation,
+    changeLocation,
     applyParsedQuery,
     editStep,
     reset,
