@@ -1,22 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getActivitiesNearYou } from "@/lib/engine";
 import type { Suggestion } from "@/lib/types";
 import { getCategory } from "@/lib/categories";
 
 /**
- * "Activities Near You" — a standing discovery feed at the bottom of the
- * surface. It is NOT its own scroll region: the main surface owns scrolling.
- * This is just a tall block of activity cards that flows within the surface
- * and dissolves against the fade fixed to the surface's bottom edge.
+ * "Activities Near You" — a standing discovery feed. Not its own scroll region;
+ * the surface owns scrolling. On select it reports the GRID's bounding rect so
+ * the detail popover can anchor snugly to the right edge of the cards.
  */
 export function ActivitiesNearYou({
   onSelect,
 }: {
-  onSelect?: (s: Suggestion) => void;
+  onSelect?: (s: Suggestion, gridRect: DOMRect | null) => void;
 }) {
   const [items, setItems] = useState<Suggestion[]>([]);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -30,6 +30,9 @@ export function ActivitiesNearYou({
 
   if (items.length === 0) return null;
 
+  const handleSelect = (s: Suggestion) =>
+    onSelect?.(s, gridRef.current?.getBoundingClientRect() ?? null);
+
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
@@ -39,9 +42,9 @@ export function ActivitiesNearYou({
 
       {/* A full-height inline block — no internal scroll. All cards render in
           full; the conversation's single scroll container handles everything. */}
-      <div className="grid grid-cols-4 gap-2.5">
+      <div ref={gridRef} className="grid grid-cols-4 gap-2.5">
         {items.map((s) => (
-          <ActivityCard key={s.id} suggestion={s} onSelect={onSelect} />
+          <ActivityCard key={s.id} suggestion={s} onSelect={handleSelect} />
         ))}
       </div>
     </section>

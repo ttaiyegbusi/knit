@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDown, MoreVertical } from "lucide-react";
+import { ChevronDown, MoreVertical, Check } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { StepCategory } from "@/components/StepCategory";
 import { Conversation } from "@/components/Conversation";
 import { ActivitiesNearYou } from "@/components/ActivitiesNearYou";
 import { ChatInput } from "@/components/ChatInput";
-import { EventSheet } from "@/components/EventSheet";
+import { EventPage } from "@/components/EventPage";
 import { SuggestionModal } from "@/components/SuggestionModal";
 import { SuggestionHistory } from "@/components/SuggestionHistory";
 import { Attachments } from "@/components/Attachments";
@@ -21,10 +21,22 @@ import { SURPRISE_ME, type Suggestion } from "@/lib/types";
 export default function Page() {
   const w = useWizard();
   const attachments = useAttachments();
-  const [activeEvent, setActiveEvent] = useState<Suggestion | null>(null);
-  const [selected, setSelected] = useState<Suggestion | null>(null);
+  const [eventDraft, setEventDraft] = useState<Suggestion | null>(null);
+  const [publishedPill, setPublishedPill] = useState(false);
 
-  function openSuggestion(s: Suggestion) {
+  function openEvent(s: Suggestion) {
+    setEventDraft(s);
+  }
+  function publishEvent() {
+    setEventDraft(null);
+    setPublishedPill(true);
+    window.setTimeout(() => setPublishedPill(false), 4000);
+  }
+  const [selected, setSelected] = useState<Suggestion | null>(null);
+  const [gridRect, setGridRect] = useState<DOMRect | null>(null);
+
+  function openSuggestion(s: Suggestion, rect: DOMRect | null) {
+    setGridRect(rect);
     setSelected(s);
   }
   const [drawer, setDrawer] = useState<"history" | "attachments" | null>(null);
@@ -82,7 +94,14 @@ export default function Page() {
         </div>
       }
     >
-      {isLanding ? (
+      {eventDraft ? (
+        /* ── Full-page event creation (takes over the surface) ──────────── */
+        <EventPage
+          suggestion={eventDraft}
+          onBack={() => setEventDraft(null)}
+          onPublish={publishEvent}
+        />
+      ) : isLanding ? (
         /* ── STATE 1 · Landing — greeting, vibe cards, chat box, activities ── */
         <div className="flex h-full flex-col">
           <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -182,10 +201,10 @@ export default function Page() {
               <ChatInput onSubmit={handleChat} onAttach={attachments.add} />
             </div>
 
-            {/* Suggestion detail — a floating popover anchored to the content
-                column, just right of the 600px thread. Absolute within this
-                non-scrolling column, so it stays put as the thread scrolls.
-                No dimming backdrop; subtle elevation. */}
+            {/* Suggestion detail — a floating popover anchored snugly to the
+                RIGHT EDGE of the activities grid (measured), with a small gap.
+                Fixed positioning + the measured edge keeps it tight against the
+                cards regardless of window width. No dimming backdrop. */}
             {selected && (
               <>
                 <div
@@ -193,15 +212,15 @@ export default function Page() {
                   onClick={() => setSelected(null)}
                 />
                 <div
-                  className="absolute top-16 z-50 animate-rise"
-                  style={{ left: "calc(50% + 320px)" }}
+                  className="fixed z-50 animate-rise"
+                  style={popoverPosition(gridRect)}
                 >
                   <SuggestionModal
                     suggestion={selected}
                     onClose={() => setSelected(null)}
                     onCreateEvent={(s) => {
                       setSelected(null);
-                      setActiveEvent(s);
+                      openEvent(s);
                     }}
                   />
                 </div>
@@ -211,15 +230,41 @@ export default function Page() {
         </div>
       )}
 
-      {activeEvent && (
-        <EventSheet
-          suggestion={activeEvent}
-          onClose={() => setActiveEvent(null)}
-        />
+      {/* Publish confirmation pill — top center, auto-dismisses. */}
+      {publishedPill && (
+        <div className="fixed left-1/2 top-3 z-[60] -translate-x-1/2 animate-rise">
+          <div className="flex items-center gap-2 rounded-full bg-[#FF4275] py-2 pl-2 pr-4 text-sm font-medium text-white shadow-soft">
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-white/25">
+              <Check className="h-3.5 w-3.5" />
+            </span>
+            Event published to your Knit
+            <button className="ml-1 font-semibold underline underline-offset-2">
+              View
+            </button>
+          </div>
+        </div>
       )}
 
     </AppShell>
   );
+}
+
+/**
+ * Anchors the popover snugly to the activities grid's right edge (measured),
+ * with a small gap. Vertically aligns near the grid top and clamps so the card
+ * never runs off-screen. Falls back to a sensible spot before measurement.
+ */
+function popoverPosition(grid: DOMRect | null): React.CSSProperties {
+  const GAP = 16;
+  const POPOVER_H = 460; // approx height for vertical clamping
+  if (typeof window === "undefined" || !grid) {
+    return { right: 40, top: 160 };
+  }
+  const left = grid.right + GAP;
+  let top = grid.top;
+  const vh = window.innerHeight;
+  if (top + POPOVER_H > vh - 12) top = Math.max(12, vh - 12 - POPOVER_H);
+  return { left, top };
 }
 
 function MenuItem({
