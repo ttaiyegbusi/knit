@@ -130,7 +130,7 @@ function SuggestionCard({
   return (
     <article
       style={{ animationDelay: `${delay}ms` }}
-      className="animate-rise group flex flex-col overflow-hidden rounded-2xl border border-line transition hover-shadow-soft"
+      className="animate-rise group flex flex-col overflow-hidden rounded-2xl border border-line transition hover:shadow-md"
     >
       <div
         className="relative h-32 bg-cover bg-center"

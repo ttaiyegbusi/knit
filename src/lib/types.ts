@@ -70,13 +70,6 @@ export interface Suggestion {
   /** Present ONLY when backed by real data. Absence = no signal. */
   socialSignal?: SocialSignal;
   priceLevel?: 1 | 2 | 3 | 4; // $ … $$$$
-  // ── Detail-modal fields ───────────────────────────────────────────────
-  /** A short venue description shown in the detail modal. */
-  description?: string;
-  /** Full street address shown in the detail modal. */
-  address?: string;
-  /** A few photos for the modal's gallery (falls back to imageUrl). */
-  gallery?: string[];
 }
 
 export interface Proximity {

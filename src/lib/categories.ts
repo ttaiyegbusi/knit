@@ -57,7 +57,7 @@ export const CATEGORIES: Category[] = [
   },
   {
     id: "do_fun",
-    label: "something fun",
+    label: "Do something fun",
     emoji: "🎭",
     chipClass: "bg-gradient-to-br from-violet-400 to-purple-500",
     refinementPrompt: "What kind of fun?",
