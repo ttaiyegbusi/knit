@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, ExternalLink, MoreVertical } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, MoreVertical } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { StepCategory } from "@/components/StepCategory";
 import { Conversation } from "@/components/Conversation";
@@ -24,7 +24,21 @@ export default function Page() {
   const [activeEvent, setActiveEvent] = useState<Suggestion | null>(null);
   const [selected, setSelected] = useState<Suggestion | null>(null);
   const [drawer, setDrawer] = useState<"history" | "attachments" | null>(null);
+  const [drawerContent, setDrawerContent] = useState<
+    "history" | "attachments" | null
+  >(null);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Keep the drawer's content mounted while it animates closed: adopt the new
+  // value on open, retain the old value through the collapse, then unmount.
+  useEffect(() => {
+    if (drawer) {
+      setDrawerContent(drawer);
+      return;
+    }
+    const t = window.setTimeout(() => setDrawerContent(null), 380);
+    return () => window.clearTimeout(t);
+  }, [drawer]);
 
   function handleChat(text: string) {
     const { query } = parseFreeText(text);
@@ -83,13 +97,6 @@ export default function Page() {
               </button>
 
               <div className="flex items-center gap-1">
-                <button
-                  onClick={handleShare}
-                  className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-ink transition hover:bg-ink/5"
-                >
-                  Share
-                  <ExternalLink className="h-4 w-4" />
-                </button>
                 <div className="relative">
                   <button
                     onClick={() => setMenuOpen((v) => !v)}
@@ -150,16 +157,28 @@ export default function Page() {
             </div>
           </div>
 
-          {/* Right-side drawer */}
-          {drawer === "history" && (
-            <SuggestionHistory onClose={() => setDrawer(null)} />
-          )}
-          {drawer === "attachments" && (
-            <Attachments
-              items={attachments.items}
-              onClose={() => setDrawer(null)}
-            />
-          )}
+          {/* Right-side drawer — always mounted; animates its width so the
+              main container reflows in step. Apple-style easing, ~360ms. */}
+          <div
+            className="h-full shrink-0 overflow-hidden transition-[width] duration-[360ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
+            style={{ width: drawer ? 336 : 0 }}
+          >
+            <div
+              className={`h-full w-[320px] transition-opacity duration-300 ${
+                drawer ? "opacity-100 delay-100" : "opacity-0"
+              }`}
+            >
+              {drawerContent === "history" && (
+                <SuggestionHistory onClose={() => setDrawer(null)} />
+              )}
+              {drawerContent === "attachments" && (
+                <Attachments
+                  items={attachments.items}
+                  onClose={() => setDrawer(null)}
+                />
+              )}
+            </div>
+          </div>
         </div>
       )}
 
