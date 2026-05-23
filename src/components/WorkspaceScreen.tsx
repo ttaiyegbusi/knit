@@ -78,8 +78,25 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
           </div>
 
           {/* Workspace card */}
-          <div className="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-rose-100 to-rose-50 p-4">
-            <p className="text-sm font-semibold leading-snug text-ink">
+          <div className="relative mb-5 overflow-hidden rounded-2xl bg-rose-50 p-4">
+            {/* Abstract wave decoration */}
+            <svg
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-12 w-full text-rose-200/70"
+              viewBox="0 0 260 48"
+              preserveAspectRatio="none"
+              fill="none"
+            >
+              <path
+                d="M0 28C40 14 80 40 130 30S220 8 260 22V48H0V28Z"
+                fill="currentColor"
+              />
+              <path
+                d="M0 38C50 26 90 46 140 38S230 24 260 34V48H0V38Z"
+                fill="currentColor"
+                opacity="0.6"
+              />
+            </svg>
+            <p className="relative text-sm font-semibold leading-snug text-ink">
               Erstwhile Accounting Class 22
             </p>
           </div>
@@ -180,18 +197,22 @@ function EventDetails() {
 
         {/* Hero image + share */}
         <div className="flex-1">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-100 via-rose-50 to-amber-50 p-4">
-            <div className="grid aspect-[4/3] place-items-center rounded-xl">
-              <div className="grid h-40 w-40 place-items-center rounded-2xl bg-white/40 ring-1 ring-white/60">
-                <span className="text-6xl">🔥</span>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center justify-between rounded-xl bg-surface/80 px-3 py-2 text-xs backdrop-blur">
+          <div className="relative overflow-hidden rounded-3xl">
+            <Image
+              src="/flame.png"
+              alt="Event artwork"
+              width={1080}
+              height={1080}
+              unoptimized
+              className="w-full"
+            />
+            {/* Share link bar overlaid near the bottom of the artwork */}
+            <div className="absolute inset-x-4 bottom-4 flex items-center justify-between rounded-xl bg-surface/85 px-3 py-2 text-xs shadow-soft backdrop-blur">
               <span className="inline-flex items-center gap-1 text-ink-soft">
                 knitevent.com/share
                 <ArrowUpRight className="h-3 w-3" />
               </span>
-              <button className="inline-flex items-center gap-1 font-semibold text-ink">
+              <button className="inline-flex items-center gap-1 font-semibold text-ink transition hover:text-[#FF4275]">
                 COPY <Copy className="h-3 w-3" />
               </button>
             </div>
