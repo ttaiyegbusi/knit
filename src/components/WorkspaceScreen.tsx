@@ -1,20 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import {
   ChevronLeft,
+  ChevronRight,
   PanelLeft,
-  Home,
-  MessageSquare,
+  LayoutGrid,
+  MessageCircle,
   Users,
-  Calendar,
+  CalendarDays,
   MapPin,
   Settings,
-  Share2,
   Search,
   Plus,
   Bell,
-  Hexagon,
+  Clock,
+  Gem,
+  Sparkles,
   UserPlus,
   Megaphone,
   MoreHorizontal,
@@ -23,6 +26,7 @@ import {
   ArrowUpRight,
   Pin,
 } from "lucide-react";
+import { Logo } from "./Logo";
 
 /**
  * The workspace + Event Details screen (Place_Details.png). A separate
@@ -31,118 +35,153 @@ import {
  * details main surface.
  */
 export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
+  const [expanded, setExpanded] = useState(true);
+
   return (
     <>
       <div className="app-bg" />
       <div className="flex h-screen gap-3 p-3 sm:gap-4 sm:p-4">
-        {/* ── Slim icon rail ───────────────────────────────────────────── */}
-        <aside className="flex w-[72px] shrink-0 flex-col items-center rounded-[10px] bg-surface/90 py-3 shadow-soft backdrop-blur-sm">
-          <button
-            aria-label="New"
-            className="mb-3 grid h-11 w-11 place-items-center rounded-xl border border-dashed border-rose-300 text-rose-400 transition hover:bg-rose-50"
-          >
-            <Plus className="h-5 w-5" />
-          </button>
-          <div className="flex flex-col items-center gap-2">
-            <button className="overflow-hidden rounded-[10px] ring-2 ring-[#FF4275]">
-              <Image src="/tile-pink.svg" alt="" width={38} height={38} unoptimized />
-            </button>
-            <button className="overflow-hidden rounded-[10px] transition hover:opacity-90">
-              <Image src="/tile-orange.svg" alt="" width={38} height={38} unoptimized />
-            </button>
-          </div>
-          <div className="mt-auto flex flex-col items-center gap-1.5">
-            <RailIcon onClick={onBack} aria-label="Back to suggestions">
-              <Hexagon className="h-5 w-5" />
-            </RailIcon>
-            <RailIcon aria-label="Settings">
-              <Settings className="h-5 w-5" />
-            </RailIcon>
-          </div>
-        </aside>
-
-        {/* ── Expanded workspace sidebar ───────────────────────────────── */}
-        <aside className="hidden w-[260px] shrink-0 flex-col rounded-[1.25rem] bg-surface/95 p-4 shadow-soft backdrop-blur-sm lg:flex">
-          <div className="mb-4 flex items-center justify-between px-1">
-            <Image
-              src="/knit-wordmark.svg"
-              alt="Knit"
-              width={72}
-              height={24}
-              priority
-              unoptimized
-            />
-            <button className="text-ink-soft transition hover:text-ink">
-              <PanelLeft className="h-5 w-5" />
-            </button>
-          </div>
-
-          {/* Workspace card */}
-          <div className="relative mb-5 overflow-hidden rounded-2xl bg-rose-50 p-4">
-            {/* Abstract wave decoration */}
-            <svg
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-12 w-full text-rose-200/70"
-              viewBox="0 0 260 48"
-              preserveAspectRatio="none"
-              fill="none"
-            >
-              <path
-                d="M0 28C40 14 80 40 130 30S220 8 260 22V48H0V28Z"
-                fill="currentColor"
-              />
-              <path
-                d="M0 38C50 26 90 46 140 38S230 24 260 34V48H0V38Z"
-                fill="currentColor"
-                opacity="0.6"
-              />
-            </svg>
-            <p className="relative text-sm font-semibold leading-snug text-ink">
-              Erstwhile Accounting Class 22
-            </p>
-          </div>
-
-          {/* CORE */}
-          <NavSection label="Core">
-            <NavItem icon={Home} label="Arena" />
-            <NavItem icon={MessageSquare} label="Messages" />
-            <NavItem icon={Users} label="Members" />
-            <NavItem icon={Calendar} label="Events" active />
-          </NavSection>
-
-          {/* MANAGE */}
-          <NavSection label="Manage">
-            <NavItem icon={MapPin} label="Places" />
-            <NavItem icon={Settings} label="Settings" />
-          </NavSection>
-
-          {/* SHARE */}
-          <NavSection label="Share">
-            <NavItem icon={Share2} label="Share and Invite" />
-          </NavSection>
-
-          {/* Share-with-friends card */}
-          <div className="mt-auto rounded-2xl bg-surface-muted p-4">
-            <div className="mb-2 flex -space-x-2">
-              {[
-                { i: "JA", c: "bg-indigo-400" },
-                { i: "SK", c: "bg-violet-400" },
-                { i: "AB", c: "bg-emerald-400" },
-              ].map((a) => (
-                <span
-                  key={a.i}
-                  className={`grid h-7 w-7 place-items-center rounded-full ${a.c} text-[10px] font-semibold text-white ring-2 ring-surface`}
-                >
-                  {a.i}
-                </span>
-              ))}
+        {/* ── ONE unified sidebar: rail strip + animated menu region ─────── */}
+        <aside className="flex h-full shrink-0 overflow-hidden rounded-[1.25rem] bg-surface/95 shadow-soft backdrop-blur-sm">
+          {/* Rail strip */}
+          <div className="flex w-[72px] shrink-0 flex-col items-center py-3">
+            <div className="pb-3">
+              <Logo size={34} />
             </div>
-            <p className="text-sm font-semibold text-ink">Share with friends</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">
-              Invite your friends to knit and have fun
-            </p>
-            <button className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#FF4275] hover:underline">
-              Send invite →
+            <div className="mb-3 h-px w-9 bg-line" />
+
+            <button
+              aria-label="New"
+              className="mb-3 grid h-11 w-11 place-items-center rounded-xl border border-dashed border-rose-300 text-rose-400 transition hover:bg-rose-50"
+            >
+              <Plus className="h-5 w-5" />
             </button>
+
+            {/* Workspace tiles — clicking expands the menu */}
+            <div className="flex flex-col items-center gap-2">
+              <button
+                onClick={() => setExpanded(true)}
+                className="relative overflow-hidden rounded-[10px] ring-2 ring-[#FF4275]"
+              >
+                {/* active indicator bar on the left edge */}
+                <span className="absolute -left-[6px] top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-[#FF4275]" />
+                <Image src="/tile-pink.svg" alt="" width={38} height={38} unoptimized />
+              </button>
+              <button
+                onClick={() => setExpanded(true)}
+                className="overflow-hidden rounded-[10px] transition hover:opacity-90"
+              >
+                <Image src="/tile-orange.svg" alt="" width={38} height={38} unoptimized />
+              </button>
+            </div>
+
+            <div className="my-3 h-px w-9 bg-line" />
+
+            {/* Suggestions (star) */}
+            <RailIcon onClick={onBack} aria-label="Suggestions">
+              <Sparkles className="h-5 w-5" />
+            </RailIcon>
+
+            {/* Bottom utilities */}
+            <div className="mt-auto flex flex-col items-center gap-1.5">
+              <RailIcon aria-label="History">
+                <Clock className="h-5 w-5" />
+              </RailIcon>
+              <RailIcon aria-label="Saved">
+                <Gem className="h-5 w-5" />
+              </RailIcon>
+              <RailIcon aria-label="Settings">
+                <Settings className="h-5 w-5" />
+              </RailIcon>
+            </div>
+          </div>
+
+          {/* Animated menu region — part of the SAME surface (hairline divider) */}
+          <div
+            className="h-full overflow-hidden border-l border-line transition-[width] duration-[360ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
+            style={{ width: expanded ? 260 : 0 }}
+          >
+            <div
+              className={`flex h-full w-[260px] flex-col p-4 transition-opacity duration-300 ${
+                expanded ? "opacity-100 delay-100" : "opacity-0"
+              }`}
+            >
+              {/* Logo lockup + collapse */}
+              <div className="mb-4 flex items-center justify-between px-1">
+                <Image
+                  src="/knit-wordmark.svg"
+                  alt="Knit"
+                  width={72}
+                  height={24}
+                  priority
+                  unoptimized
+                />
+                <button
+                  onClick={() => setExpanded(false)}
+                  aria-label="Collapse sidebar"
+                  className="text-ink-soft transition hover:text-ink"
+                >
+                  <PanelLeft className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Workspace card */}
+              <div className="relative mb-5 overflow-hidden rounded-2xl bg-rose-50 p-4">
+                <svg
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-12 w-full text-rose-200/70"
+                  viewBox="0 0 260 48"
+                  preserveAspectRatio="none"
+                  fill="none"
+                >
+                  <path d="M0 28C40 14 80 40 130 30S220 8 260 22V48H0V28Z" fill="currentColor" />
+                  <path d="M0 38C50 26 90 46 140 38S230 24 260 34V48H0V38Z" fill="currentColor" opacity="0.6" />
+                </svg>
+                <p className="relative text-sm font-semibold leading-snug text-ink">
+                  Erstwhile Accounting Class 22
+                </p>
+              </div>
+
+              <NavSection label="Core">
+                <NavItem icon={LayoutGrid} label="Arena" />
+                <NavItem icon={MessageCircle} label="Messages" />
+                <NavItem icon={Users} label="Members" />
+                <NavItem icon={CalendarDays} label="Events" active />
+              </NavSection>
+
+              <NavSection label="Manage">
+                <NavItem icon={MapPin} label="Places" />
+                <NavItem icon={Settings} label="Settings" />
+              </NavSection>
+
+              <NavSection label="Share">
+                <NavItem icon={QrCode} label="Share and Invite" />
+              </NavSection>
+
+              {/* Share-with-friends card */}
+              <div className="mt-auto rounded-2xl bg-surface-muted p-4">
+                <div className="mb-2 flex -space-x-2">
+                  {[
+                    { i: "JA", c: "bg-sky-400" },
+                    { i: "SK", c: "bg-violet-500" },
+                    { i: "AB", c: "bg-emerald-500" },
+                  ].map((a) => (
+                    <span
+                      key={a.i}
+                      className={`grid h-7 w-7 place-items-center rounded-full ${a.c} text-[10px] font-semibold text-white ring-2 ring-surface`}
+                    >
+                      {a.i}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm font-semibold text-ink">Share with friends</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">
+                  Invite your friends to knit and have fun
+                </p>
+                <button className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#FF4275] hover:underline">
+                  Send invite <ChevronRight className="h-3 w-3" />
+                </button>
+              </div>
+            </div>
           </div>
         </aside>
 
