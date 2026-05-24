@@ -31,6 +31,8 @@ import { Logo } from "./Logo";
 import { MessagesScreen } from "./MessagesScreen";
 import { MembersScreen } from "./MembersScreen";
 import { PlacesScreen } from "./PlacesScreen";
+import { ArenaScreen } from "./ArenaScreen";
+import { AvailabilityScreen } from "./AvailabilityScreen";
 
 /**
  * The workspace + Event Details screen (Place_Details.png). A separate
@@ -38,7 +40,7 @@ import { PlacesScreen } from "./PlacesScreen";
  * rail. Three columns: slim icon rail · expanded workspace sidebar · event
  * details main surface.
  */
-type Section = "events" | "messages" | "members" | "places";
+type Section = "arena" | "events" | "messages" | "members" | "places" | "availability";
 
 export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
   const [expanded, setExpanded] = useState(true);
@@ -149,7 +151,12 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
               </div>
 
               <NavSection label="Core">
-                <NavItem icon={LayoutGrid} label="Arena" />
+                <NavItem
+                  icon={LayoutGrid}
+                  label="Arena"
+                  active={section === "arena"}
+                  onClick={() => setSection("arena")}
+                />
                 <NavItem
                   icon={MessageCircle}
                   label="Messages"
@@ -172,7 +179,12 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
               </NavSection>
 
               <NavSection label="Manage">
-                <NavItem icon={Clock} label="Availability" />
+                <NavItem
+                  icon={Clock}
+                  label="Availability"
+                  active={section === "availability"}
+                  onClick={() => setSection("availability")}
+                />
                 <NavItem
                   icon={MapPin}
                   label="Places"
@@ -227,18 +239,26 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
               </button>
             ) : (
               <span className="inline-flex items-center gap-2 rounded-full bg-surface/90 px-4 py-2.5 text-sm font-semibold text-ink shadow-soft backdrop-blur-sm">
-                {section === "messages" ? (
+                {section === "arena" ? (
+                  <LayoutGrid className="h-4 w-4" />
+                ) : section === "messages" ? (
                   <MessageCircle className="h-4 w-4" />
                 ) : section === "members" ? (
                   <Users className="h-4 w-4" />
+                ) : section === "availability" ? (
+                  <Clock className="h-4 w-4" />
                 ) : (
                   <MapPin className="h-4 w-4" />
                 )}
-                {section === "messages"
-                  ? "Messages"
-                  : section === "members"
-                    ? "Members"
-                    : "Places"}
+                {section === "arena"
+                  ? "Arena"
+                  : section === "messages"
+                    ? "Messages"
+                    : section === "members"
+                      ? "Members"
+                      : section === "availability"
+                        ? "Availability"
+                        : "Places"}
               </span>
             )}
 
@@ -275,9 +295,11 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
 
           <div className="min-h-0 flex-1 overflow-hidden rounded-[1.25rem] bg-surface shadow-soft">
             <div className="h-full overflow-y-auto p-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:p-8">
+              {section === "arena" && <ArenaScreen />}
               {section === "events" && <EventDetails />}
               {section === "messages" && <MessagesScreen />}
               {section === "members" && <MembersScreen />}
+              {section === "availability" && <AvailabilityScreen />}
               {section === "places" && (
                 <PlacesScreen onPlanEvent={() => setSection("events")} />
               )}
