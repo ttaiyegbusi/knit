@@ -25,8 +25,11 @@ import {
   Copy,
   ArrowUpRight,
   Pin,
+  Info,
 } from "lucide-react";
 import { Logo } from "./Logo";
+import { MessagesScreen } from "./MessagesScreen";
+import { MembersScreen } from "./MembersScreen";
 
 /**
  * The workspace + Event Details screen (Place_Details.png). A separate
@@ -34,8 +37,11 @@ import { Logo } from "./Logo";
  * rail. Three columns: slim icon rail · expanded workspace sidebar · event
  * details main surface.
  */
+type Section = "events" | "messages" | "members";
+
 export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
   const [expanded, setExpanded] = useState(true);
+  const [section, setSection] = useState<Section>("events");
 
   return (
     <>
@@ -143,12 +149,29 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
 
               <NavSection label="Core">
                 <NavItem icon={LayoutGrid} label="Arena" />
-                <NavItem icon={MessageCircle} label="Messages" />
-                <NavItem icon={Users} label="Members" />
-                <NavItem icon={CalendarDays} label="Events" active />
+                <NavItem
+                  icon={MessageCircle}
+                  label="Messages"
+                  badge={3}
+                  active={section === "messages"}
+                  onClick={() => setSection("messages")}
+                />
+                <NavItem
+                  icon={Users}
+                  label="Members"
+                  active={section === "members"}
+                  onClick={() => setSection("members")}
+                />
+                <NavItem
+                  icon={CalendarDays}
+                  label="Events"
+                  active={section === "events"}
+                  onClick={() => setSection("events")}
+                />
               </NavSection>
 
               <NavSection label="Manage">
+                <NavItem icon={Clock} label="Availability" />
                 <NavItem icon={MapPin} label="Places" />
                 <NavItem icon={Settings} label="Settings" />
               </NavSection>
@@ -185,25 +208,48 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
           </div>
         </aside>
 
-        {/* ── Main column: top nav + event details surface ─────────────── */}
+        {/* ── Main column: top toolbar + active section content ────────── */}
         <div className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
           <header className="flex shrink-0 items-center justify-between gap-4">
-            <button
-              onClick={onBack}
-              className="flex items-center gap-2 rounded-full bg-surface/90 px-4 py-2 text-sm font-semibold text-ink shadow-soft backdrop-blur-sm transition hover:bg-surface"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back
-            </button>
+            {section === "events" ? (
+              <button
+                onClick={onBack}
+                className="flex items-center gap-2 rounded-full bg-surface/90 px-4 py-2 text-sm font-semibold text-ink shadow-soft backdrop-blur-sm transition hover:bg-surface"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back
+              </button>
+            ) : (
+              <span className="inline-flex items-center gap-2 rounded-full bg-surface/90 px-4 py-2.5 text-sm font-semibold text-ink shadow-soft backdrop-blur-sm">
+                {section === "messages" ? (
+                  <MessageCircle className="h-4 w-4" />
+                ) : (
+                  <Users className="h-4 w-4" />
+                )}
+                {section === "messages" ? "Messages" : "Members"}
+              </span>
+            )}
+
             <div className="flex items-center gap-2">
               <div className="hidden items-center gap-2 rounded-full bg-surface/90 px-4 py-2.5 text-sm text-ink-faint shadow-soft backdrop-blur-sm md:flex">
                 <Search className="h-4 w-4" />
                 <span className="w-44">Search</span>
               </div>
-              <button className="inline-flex items-center gap-1.5 rounded-full bg-surface/90 px-4 py-2.5 text-sm font-semibold text-[#FF4275] shadow-soft backdrop-blur-sm transition hover:bg-surface">
-                <Plus className="h-4 w-4" />
-                Create event
-              </button>
+              {section === "members" ? (
+                <button className="inline-flex items-center gap-1.5 rounded-full bg-surface/90 px-4 py-2.5 text-sm font-semibold text-[#FF4275] shadow-soft backdrop-blur-sm transition hover:bg-surface">
+                  <Plus className="h-4 w-4" />
+                  Add member
+                </button>
+              ) : section === "events" ? (
+                <button className="inline-flex items-center gap-1.5 rounded-full bg-surface/90 px-4 py-2.5 text-sm font-semibold text-[#FF4275] shadow-soft backdrop-blur-sm transition hover:bg-surface">
+                  <Plus className="h-4 w-4" />
+                  Create event
+                </button>
+              ) : (
+                <button className="grid h-10 w-10 place-items-center rounded-full bg-surface/90 text-ink-soft shadow-soft backdrop-blur-sm transition hover:text-ink">
+                  <Info className="h-4 w-4" />
+                </button>
+              )}
               <button className="grid h-10 w-10 place-items-center rounded-full bg-surface/90 text-ink-soft shadow-soft backdrop-blur-sm transition hover:text-ink">
                 <Bell className="h-4 w-4" />
               </button>
@@ -212,7 +258,9 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
 
           <div className="min-h-0 flex-1 overflow-hidden rounded-[1.25rem] bg-surface shadow-soft">
             <div className="h-full overflow-y-auto p-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:p-8">
-              <EventDetails />
+              {section === "events" && <EventDetails />}
+              {section === "messages" && <MessagesScreen />}
+              {section === "members" && <MembersScreen />}
             </div>
           </div>
         </div>
@@ -394,13 +442,18 @@ function NavItem({
   icon: Icon,
   label,
   active,
+  badge,
+  onClick,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   active?: boolean;
+  badge?: number;
+  onClick?: () => void;
 }) {
   return (
     <button
+      onClick={onClick}
       className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition ${
         active
           ? "bg-ink/5 font-semibold text-ink"
@@ -409,6 +462,11 @@ function NavItem({
     >
       <Icon className="h-4 w-4" />
       {label}
+      {badge !== undefined && (
+        <span className="ml-auto grid h-5 min-w-5 place-items-center rounded-full bg-[#FF4275]/10 px-1 text-xs font-semibold text-[#FF4275]">
+          {badge}
+        </span>
+      )}
     </button>
   );
 }
