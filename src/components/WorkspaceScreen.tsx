@@ -30,6 +30,7 @@ import {
 import { Logo } from "./Logo";
 import { MessagesScreen } from "./MessagesScreen";
 import { MembersScreen } from "./MembersScreen";
+import { PlacesScreen } from "./PlacesScreen";
 
 /**
  * The workspace + Event Details screen (Place_Details.png). A separate
@@ -37,7 +38,7 @@ import { MembersScreen } from "./MembersScreen";
  * rail. Three columns: slim icon rail · expanded workspace sidebar · event
  * details main surface.
  */
-type Section = "events" | "messages" | "members";
+type Section = "events" | "messages" | "members" | "places";
 
 export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
   const [expanded, setExpanded] = useState(true);
@@ -172,7 +173,12 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
 
               <NavSection label="Manage">
                 <NavItem icon={Clock} label="Availability" />
-                <NavItem icon={MapPin} label="Places" />
+                <NavItem
+                  icon={MapPin}
+                  label="Places"
+                  active={section === "places"}
+                  onClick={() => setSection("places")}
+                />
                 <NavItem icon={Settings} label="Settings" />
               </NavSection>
 
@@ -223,10 +229,16 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
               <span className="inline-flex items-center gap-2 rounded-full bg-surface/90 px-4 py-2.5 text-sm font-semibold text-ink shadow-soft backdrop-blur-sm">
                 {section === "messages" ? (
                   <MessageCircle className="h-4 w-4" />
-                ) : (
+                ) : section === "members" ? (
                   <Users className="h-4 w-4" />
+                ) : (
+                  <MapPin className="h-4 w-4" />
                 )}
-                {section === "messages" ? "Messages" : "Members"}
+                {section === "messages"
+                  ? "Messages"
+                  : section === "members"
+                    ? "Members"
+                    : "Places"}
               </span>
             )}
 
@@ -239,6 +251,11 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
                 <button className="inline-flex items-center gap-1.5 rounded-full bg-surface/90 px-4 py-2.5 text-sm font-semibold text-[#FF4275] shadow-soft backdrop-blur-sm transition hover:bg-surface">
                   <Plus className="h-4 w-4" />
                   Add member
+                </button>
+              ) : section === "places" ? (
+                <button className="inline-flex items-center gap-1.5 rounded-full bg-surface/90 px-4 py-2.5 text-sm font-semibold text-[#FF4275] shadow-soft backdrop-blur-sm transition hover:bg-surface">
+                  <Plus className="h-4 w-4" />
+                  Add a place
                 </button>
               ) : section === "events" ? (
                 <button className="inline-flex items-center gap-1.5 rounded-full bg-surface/90 px-4 py-2.5 text-sm font-semibold text-[#FF4275] shadow-soft backdrop-blur-sm transition hover:bg-surface">
@@ -261,6 +278,9 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
               {section === "events" && <EventDetails />}
               {section === "messages" && <MessagesScreen />}
               {section === "members" && <MembersScreen />}
+              {section === "places" && (
+                <PlacesScreen onPlanEvent={() => setSection("events")} />
+              )}
             </div>
           </div>
         </div>
