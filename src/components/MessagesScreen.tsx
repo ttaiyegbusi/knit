@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Plus, Smile, ArrowUp, MapPin } from "lucide-react";
+import { type KnitData, type KnitMessage } from "@/lib/workspaces";
 
 type Msg =
   | { kind: "system"; id: string; actor: string; verb: string; rest: string }
@@ -9,26 +10,36 @@ type Msg =
   | { kind: "in"; id: string; sender: string; avatar?: string; text: string; online?: boolean }
   | { kind: "out"; id: string; text: string }
   | { kind: "location"; id: string; sender: string; label: string }
-  | { kind: "activity"; id: string; pre: string; keyword: string; post: string };
+  | { kind: "activity"; id: string; sender: string; pre: string; keyword: string; post: string };
 
-const SEED: Msg[] = [
-  { kind: "system", id: "s1", actor: "John", verb: "created", rest: "Erstwhile Accounting Class 22" },
-  { kind: "divider", id: "d1", label: "Today" },
-  { kind: "system", id: "s2", actor: "John", verb: "added", rest: "Fouad" },
-  { kind: "system", id: "s3", actor: "John", verb: "added", rest: "Temitope" },
-  { kind: "system", id: "s4", actor: "John", verb: "added", rest: "Fouad" },
-  { kind: "out", id: "o1", text: "hey Temitope" },
-  { kind: "out", id: "o2", text: "I have gotten your message, I'll send it across board for error" },
-  { kind: "in", id: "i1", sender: "Temitope", text: "hey John", online: true },
-  { kind: "in", id: "i2", sender: "Temitope", text: "Alright' thank you, also check the groom designs on figma", online: true },
-  { kind: "in", id: "i3", sender: "Fouad", text: "Hi guys, please check the designs ASAP", online: true },
-  { kind: "out", id: "o3", text: "Alrightttt." },
-  { kind: "location", id: "l1", sender: "Fouad", label: "Ajao Estate, Lag…" },
-  { kind: "activity", id: "a1", pre: "Fouad added a", keyword: "place", post: "to the group list" },
-];
+function toMsgs(list: KnitMessage[]): Msg[] {
+  return list.map((m) => {
+    switch (m.kind) {
+      case "system":
+        return { kind: "system", id: m.id, actor: m.actor!, verb: m.verb!, rest: m.rest! };
+      case "divider":
+        return { kind: "divider", id: m.id, label: m.label! };
+      case "in":
+        return { kind: "in", id: m.id, sender: m.sender!, text: m.text!, online: m.online };
+      case "out":
+        return { kind: "out", id: m.id, text: m.text! };
+      case "location":
+        return { kind: "location", id: m.id, sender: m.sender!, label: m.locLabel! };
+      default:
+        return {
+          kind: "activity",
+          id: m.id,
+          sender: m.pre?.split(" ")[0] ?? "",
+          pre: m.pre!,
+          keyword: m.keyword!,
+          post: m.post!,
+        };
+    }
+  });
+}
 
-export function MessagesScreen() {
-  const [messages, setMessages] = useState<Msg[]>(SEED);
+export function MessagesScreen({ knit }: { knit: KnitData }) {
+  const [messages, setMessages] = useState<Msg[]>(() => toMsgs(knit.messages));
   const [text, setText] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -151,7 +162,7 @@ function MessageRow({ m }: { m: Msg }) {
   // activity
   return (
     <div className="flex items-center gap-2">
-      <Avatar sender="Fouad" online />
+      <Avatar sender={m.sender} online />
       <p className="rounded-2xl rounded-tl-md bg-surface-muted px-4 py-2.5 text-sm italic text-ink-soft">
         {m.pre} <span className="font-medium not-italic text-[#FF4275]">{m.keyword}</span> {m.post}
       </p>

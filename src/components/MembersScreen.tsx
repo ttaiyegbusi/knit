@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { ChevronsUpDown, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
+import { type KnitData } from "@/lib/workspaces";
 
 interface Member {
   id: string;
@@ -14,33 +15,22 @@ interface Member {
   online: boolean;
 }
 
-const MEMBERS: Member[] = [
-  { id: "1", name: "Tope Aiyegbusi", role: "Creator", initials: "TA", color: "bg-blue-500", sinceDays: 14, joinMethod: "Mail Invite", online: true },
-  { id: "2", name: "John Niyon", role: "Member", initials: "JN", color: "bg-pink-500", sinceDays: 14, joinMethod: "QR code", online: true },
-  { id: "3", name: "Faith Onasanya", role: "Member", initials: "FO", color: "bg-violet-500", sinceDays: 14, joinMethod: "Mail Invite", online: true },
-  { id: "4", name: "Jenny Wilson", role: "Member", initials: "JW", color: "bg-rose-500", sinceDays: 15, joinMethod: "Knit link", online: false },
-  { id: "5", name: "Theresa Webb", role: "Member", initials: "TW", color: "bg-teal-500", sinceDays: 15, joinMethod: "QR code", online: true },
-  { id: "6", name: "Marvin McKinney", role: "Member", initials: "MM", color: "bg-cyan-500", sinceDays: 16, joinMethod: "Knit link", online: false },
-  { id: "7", name: "Courtney Henry", role: "Member", initials: "CH", color: "bg-violet-400", sinceDays: 16, joinMethod: "QR code", online: true },
-  { id: "8", name: "Ralph Edwards", role: "Member", initials: "RE", color: "bg-emerald-500", sinceDays: 17, joinMethod: "Mail Invite", online: false },
-  { id: "9", name: "Wade Warren", role: "Member", initials: "WW", color: "bg-orange-500", sinceDays: 17, joinMethod: "Knit link", online: true },
-  { id: "10", name: "Bessie Cooper", role: "Member", initials: "BC", color: "bg-indigo-500", sinceDays: 18, joinMethod: "QR code", online: true },
-  { id: "11", name: "Darrell Steward", role: "Member", initials: "DS", color: "bg-fuchsia-500", sinceDays: 18, joinMethod: "Mail Invite", online: false },
-  { id: "12", name: "Guy Hawkins", role: "Member", initials: "GH", color: "bg-amber-500", sinceDays: 19, joinMethod: "Knit link", online: true },
-];
-
 type SortKey = "name" | "sinceDays" | "joinMethod" | "online";
 
 const PAGE_SIZE = 8;
 
-export function MembersScreen() {
+export function MembersScreen({ knit }: { knit: KnitData }) {
+  const members: Member[] = useMemo(
+    () => knit.members.map((m, i) => ({ id: String(i + 1), ...m })),
+    [knit]
+  );
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortAsc, setSortAsc] = useState(true);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
 
   const sorted = useMemo(() => {
-    const arr = [...MEMBERS].sort((a, b) => {
+    const arr = [...members].sort((a, b) => {
       let cmp = 0;
       if (sortKey === "name") cmp = a.name.localeCompare(b.name);
       else if (sortKey === "sinceDays") cmp = a.sinceDays - b.sinceDays;
@@ -51,8 +41,8 @@ export function MembersScreen() {
     return arr;
   }, [sortKey, sortAsc]);
 
-  // Display 500 as a stand-in total to match the mockup's "of 500".
-  const total = 500;
+  // Display the Knit's member count as the total.
+  const total = knit.membersCount;
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const pageStart = (page - 1) * PAGE_SIZE;
   const rows = sorted.slice(pageStart % sorted.length, (pageStart % sorted.length) + PAGE_SIZE);

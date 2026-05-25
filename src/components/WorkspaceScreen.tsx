@@ -33,6 +33,7 @@ import { MembersScreen } from "./MembersScreen";
 import { PlacesScreen } from "./PlacesScreen";
 import { ArenaScreen } from "./ArenaScreen";
 import { AvailabilityScreen } from "./AvailabilityScreen";
+import { WORKSPACES, type KnitId, type KnitData } from "@/lib/workspaces";
 
 /**
  * The workspace + Event Details screen (Place_Details.png). A separate
@@ -45,6 +46,13 @@ type Section = "arena" | "events" | "messages" | "members" | "places" | "availab
 export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
   const [expanded, setExpanded] = useState(true);
   const [section, setSection] = useState<Section>("events");
+  const [activeKnit, setActiveKnit] = useState<KnitId>("pink");
+  const knit = WORKSPACES[activeKnit];
+
+  function switchKnit(id: KnitId) {
+    setActiveKnit(id);
+    setExpanded(true);
+  }
 
   return (
     <>
@@ -66,20 +74,28 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
               <Plus className="h-5 w-5" />
             </button>
 
-            {/* Workspace tiles — clicking expands the menu */}
+            {/* Workspace tiles — switch between Knits */}
             <div className="flex flex-col items-center gap-2">
               <button
-                onClick={() => setExpanded(true)}
-                className="relative overflow-hidden rounded-[10px] ring-2 ring-[#FF4275]"
+                onClick={() => switchKnit("pink")}
+                className={`relative overflow-hidden rounded-[10px] transition hover:opacity-90 ${
+                  activeKnit === "pink" ? "ring-2 ring-[#FF4275]" : ""
+                }`}
               >
-                {/* active indicator bar on the left edge */}
-                <span className="absolute -left-[6px] top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-[#FF4275]" />
+                {activeKnit === "pink" && (
+                  <span className="absolute -left-[6px] top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-[#FF4275]" />
+                )}
                 <Image src="/tile-pink.svg" alt="" width={38} height={38} unoptimized />
               </button>
               <button
-                onClick={() => setExpanded(true)}
-                className="overflow-hidden rounded-[10px] transition hover:opacity-90"
+                onClick={() => switchKnit("orange")}
+                className={`relative overflow-hidden rounded-[10px] transition hover:opacity-90 ${
+                  activeKnit === "orange" ? "ring-2 ring-[#FF4275]" : ""
+                }`}
               >
+                {activeKnit === "orange" && (
+                  <span className="absolute -left-[6px] top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-[#FF4275]" />
+                )}
                 <Image src="/tile-orange.svg" alt="" width={38} height={38} unoptimized />
               </button>
             </div>
@@ -146,7 +162,7 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
                   <path d="M0 38C50 26 90 46 140 38S230 24 260 34V48H0V38Z" fill="currentColor" opacity="0.6" />
                 </svg>
                 <p className="relative text-sm font-semibold leading-snug text-ink">
-                  Erstwhile Accounting Class 22
+                  {knit.name}
                 </p>
               </div>
 
@@ -295,11 +311,11 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
 
           <div className="min-h-0 flex-1 overflow-hidden rounded-[1.25rem] bg-surface shadow-soft">
             <div className="h-full overflow-y-auto p-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:p-8">
-              {section === "arena" && <ArenaScreen />}
-              {section === "events" && <EventDetails />}
-              {section === "messages" && <MessagesScreen />}
-              {section === "members" && <MembersScreen />}
-              {section === "availability" && <AvailabilityScreen />}
+              {section === "arena" && <ArenaScreen knit={knit} />}
+              {section === "events" && <EventDetails knit={knit} />}
+              {section === "messages" && <MessagesScreen key={activeKnit} knit={knit} />}
+              {section === "members" && <MembersScreen key={activeKnit} knit={knit} />}
+              {section === "availability" && <AvailabilityScreen knit={knit} />}
               {section === "places" && (
                 <PlacesScreen onPlanEvent={() => setSection("events")} />
               )}
@@ -311,7 +327,8 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-function EventDetails() {
+function EventDetails({ knit }: { knit: KnitData }) {
+  const e = knit.event;
   return (
     <div className="flex flex-col gap-8 lg:flex-row">
       {/* Left — hero + mini toolbar + share */}
@@ -358,21 +375,19 @@ function EventDetails() {
         <div>
           <p className="mb-1 inline-flex items-center gap-2 text-sm text-ink-soft">
             <span className="inline-flex items-center gap-1">
-              <Users className="h-4 w-4 text-[#FF4275]" /> Social hangout
+              <Users className="h-4 w-4 text-[#FF4275]" /> {e.category}
             </span>
             · Public
           </p>
-          <h1 className="font-display text-3xl text-ink">Bowling with the guys</h1>
-          <p className="mt-1 text-sm text-ink-soft">
-            Wed, Apr 24, 8:00 PM – 10 PM
-          </p>
+          <h1 className="font-display text-3xl text-ink">{e.title}</h1>
+          <p className="mt-1 text-sm text-ink-soft">{e.datetime}</p>
         </div>
 
         <div>
           <p className="mb-1 text-sm font-semibold text-ink">Location</p>
           <p className="flex items-center gap-2 text-sm text-ink-soft">
             <Pin className="h-4 w-4 text-[#FF4275]" />
-            Overtoom 301, Netherlands
+            {e.location}
           </p>
         </div>
 
@@ -394,20 +409,17 @@ function EventDetails() {
           <p className="mb-2 text-sm font-semibold text-ink">Hosted by</p>
           <div className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-300 text-xs font-semibold text-white">
-              JA
+              {e.hostInitials}
             </span>
             <span className="text-sm text-ink">
-              John Arowoka <span className="text-ink-faint">[You]</span>
+              {e.host} <span className="text-ink-faint">[You]</span>
             </span>
           </div>
         </div>
 
         <div>
           <p className="mb-1 text-sm font-semibold text-ink">About Event</p>
-          <p className="text-sm leading-relaxed text-ink-soft">
-            Some random explanation of why four men are hanging out in a room for
-            hours… and just bowling away their thoughts and stress
-          </p>
+          <p className="text-sm leading-relaxed text-ink-soft">{e.about}</p>
         </div>
 
         <div>
@@ -430,17 +442,14 @@ function EventDetails() {
           <p className="mb-2 text-sm font-semibold text-ink">Blasts</p>
           <div className="flex items-start gap-2">
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-300 text-xs font-semibold text-white">
-              JA
+              {e.hostInitials}
             </span>
             <div>
               <p className="text-sm text-ink">
-                John Arowoka <span className="text-ink-faint">[Host]</span>
+                {e.host} <span className="text-ink-faint">[Host]</span>
                 <span className="ml-2 text-xs text-ink-faint">2hrs ago</span>
               </p>
-              <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-                Some random explanation of why four men are hanging out in a room
-                for hours… and just bowling away their thoughts and stress
-              </p>
+              <p className="mt-1 text-sm leading-relaxed text-ink-soft">{e.about}</p>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import { type KnitData } from "@/lib/workspaces";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -23,38 +24,17 @@ interface Slot {
   avatars: { i: string; c: string }[];
 }
 
-const EVENTS: Slot[] = [
-  {
-    day: 3,
-    startHour: 8,
-    title: "Boys Hangout",
-    time: "8:00 AM",
-    tone: "blue",
-    avatars: [
-      { i: "AC", c: "bg-violet-500" },
-      { i: "RB", c: "bg-emerald-500" },
-    ],
-  },
-  {
-    day: 5,
-    startHour: 9,
-    title: "Girls Hangout",
-    time: "8:00 AM",
-    tone: "pink",
-    avatars: [
-      { i: "AC", c: "bg-violet-500" },
-      { i: "RB", c: "bg-emerald-500" },
-    ],
-  },
-];
-
 const ROW_H = 80; // px per hour
 
-export function AvailabilityScreen() {
+export function AvailabilityScreen({ knit }: { knit: KnitData }) {
   const [weekOffset, setWeekOffset] = useState(0);
   // Base week dates (mock): Sun 11 … Sat 17, today = Mon 12.
   const baseDates = [11, 12, 13, 14, 15, 16, 17].map((d) => d + weekOffset * 7);
   const todayIdx = 1; // Mon highlighted
+
+  // Avatar cluster drawn from this Knit's members.
+  const avatars = knit.members.slice(0, 2).map((m) => ({ i: m.initials, c: m.color }));
+  const events: Slot[] = knit.availability.map((a) => ({ ...a, avatars }));
 
   return (
     <div className="flex h-full flex-col">
@@ -113,7 +93,7 @@ export function AvailabilityScreen() {
                 <div key={h} className="border-b border-line/60" style={{ height: ROW_H }} />
               ))}
 
-              {EVENTS.filter((e) => e.day === dayIdx).map((e, i) => {
+              {events.filter((e) => e.day === dayIdx).map((e, i) => {
                 const top = (e.startHour - HOURS[0]) * ROW_H;
                 return (
                   <div

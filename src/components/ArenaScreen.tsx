@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { Users, Copy, Check } from "lucide-react";
+import { type KnitData } from "@/lib/workspaces";
 
-export function ArenaScreen() {
+export function ArenaScreen({ knit }: { knit: KnitData }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [copied, setCopied] = useState(false);
-  const joinLink = "knit.app/join/your-room-7f3a";
+  const joinLink = knit.joinLink;
 
   function send() {
     if (!email.trim()) return;
@@ -43,14 +44,14 @@ export function ArenaScreen() {
             </div>
             <div>
               <p className="text-sm text-ink-soft">Knit Created by</p>
-              <p className="text-lg font-semibold text-ink">Temitope Aiyegbusi</p>
+              <p className="text-lg font-semibold text-ink">{knit.creator}</p>
             </div>
           </div>
 
           <div className="flex flex-col gap-2 md:w-72">
-            <Stat label="Members" value="10" />
-            <Stat label="Events Created" value="3" />
-            <Stat label="Date Created" value="24 April, 2024 at 10:24pm" />
+            <Stat label="Members" value={String(knit.membersCount)} />
+            <Stat label="Events Created" value={String(knit.eventsCreated)} />
+            <Stat label="Date Created" value={knit.dateCreated} />
           </div>
         </div>
       </div>
@@ -119,7 +120,7 @@ export function ArenaScreen() {
             </div>
 
             <p className="mt-4 text-center text-lg font-semibold leading-snug">
-              Erstwhile Accounting Class 22
+              {knit.name}
             </p>
 
             <button
