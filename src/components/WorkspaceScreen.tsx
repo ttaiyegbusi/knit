@@ -43,7 +43,7 @@ import { WORKSPACES, type KnitId, type KnitData } from "@/lib/workspaces";
  */
 type Section = "arena" | "events" | "messages" | "members" | "places" | "availability";
 
-export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
+export function WorkspaceScreen({ onBack, onOpenSettings }: { onBack: () => void; onOpenSettings?: () => void }) {
   const [expanded, setExpanded] = useState(true);
   const [section, setSection] = useState<Section>("events");
   const [activeKnit, setActiveKnit] = useState<KnitId>("pink");
@@ -115,7 +115,7 @@ export function WorkspaceScreen({ onBack }: { onBack: () => void }) {
               <RailIcon aria-label="Saved">
                 <Gem className="h-5 w-5" />
               </RailIcon>
-              <RailIcon aria-label="Settings">
+              <RailIcon aria-label="Settings" onClick={onOpenSettings}>
                 <Settings className="h-5 w-5" />
               </RailIcon>
             </div>

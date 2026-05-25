@@ -19,10 +19,12 @@ export function AppShell({
   children,
   aside,
   onOpenWorkspace,
+  onOpenSettings,
 }: {
   children: React.ReactNode;
   aside?: React.ReactNode;
   onOpenWorkspace?: () => void;
+  onOpenSettings?: () => void;
 }) {
   return (
     <>
@@ -72,7 +74,7 @@ export function AppShell({
             <RailButton active aria-label="Suggestions">
               <Sparkles className="h-5 w-5" />
             </RailButton>
-            <RailButton aria-label="Settings">
+            <RailButton aria-label="Settings" onClick={onOpenSettings}>
               <Settings className="h-5 w-5" />
             </RailButton>
           </nav>
